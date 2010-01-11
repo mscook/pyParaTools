@@ -144,7 +144,7 @@ class ParaData:
 
 class PCSData(ParaData):
     def __init__(self, spin_type, spin_id, exp_val, e_tol, s_coord):
-       """
+        """
         A PCS data container
         @param spin_type: The spin type
         @type spin_type:  string
@@ -193,7 +193,7 @@ class PREData(ParaData):
 class RDCData(ParaData):
     def __init__(self, spin_type, spin_type2, spin_id, exp_val, e_tol,
      s_coord, s_coord2):
-       """
+        """
         A RDC data container
         @param spin_type: The spin type of the 1st atom in the coupling
         @type spin_type:  string
@@ -304,6 +304,7 @@ class RDCData(ParaData):
 
 class ParaStore:
     #TODO:Define this class.
+    pass
 #    def __init__(self, initial_student_list):
 #             """
 #             FIXME
