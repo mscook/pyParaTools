@@ -2,7 +2,7 @@ class ParaData:
 
     def __init__(self, spin_type, spin_id, exp_val, e_tol, s_coord):
         """
-        A paramagnetic data container
+        A paramagnetic data type
         @param spin_type: The spin type
         @type spin_type:  string
         @param spin_id:   The residue id
@@ -140,6 +140,12 @@ class ParaData:
         """
         self.s_coord[2] = coord_z
 
+    def printNice(self):
+        """
+        Print 'Numbat' like format
+        """
+        print '%4s%4s%8f%8f' % (self.spin_type, self.spin_id,
+        self.exp_val, self.e_tol)
 
 
 class PCSData(ParaData):
@@ -291,33 +297,18 @@ class RDCData(ParaData):
         """
         self.s_coord2 = coord2_z
 
+    def printNice(self):
+        """
+        Print 'Numbat' like format
+        """
+        print '%4s%4s%8f%8f' % (self.spin_type+self.spin_type2, self.spin_id,
+        self.exp_val, self.e_tol)
+
 
     def lookupMGR(self):
         """
-        Return the gyromagnetic ratio for the coupling
+        Return the gyromagnetic ratio for the coupling. Not working ATM.
         """
-        #TODO:Add the this method
-        #FIXME:Get the gyromagnetic ratios from IUPAC book
+        #TODO:Add this method. Get the gyromagnetic ratios from IUPAC book
         pass
-
-
-
-class ParaStore:
-    #TODO:Define this class.
-    pass
-#    def __init__(self, initial_student_list):
-#             """
-#             FIXME
-#             @param initial_student_list:
-#             @type initial_student_list:
-#             """
-#            """
-#            FIXME
-#            @param initial_student_list:
-#            @type initial_student_list:
-#            """
-#...         self.student_names = initial_student_list
-#...         self.students = {}
-#...         for name in self.student_names:
-#...             self.students[name] = Student(name)
 
