@@ -1,6 +1,6 @@
 import sys
 from Bio.PDB import *
-import ParaData
+from ParaData import *
 
 class ParaParser:
     def __init__(self, stdin):
@@ -52,7 +52,8 @@ class ParaParser:
         self.model = self.structure[num]
 
     def doParse(self):
-        results = []
+        #This method (and the RDC one) needs a bit of an optimize.
+        pDlist = []
         for i in range(0, len(self.dataset)):
             resi, atom_type, exp, tol =  self.dataset[i].split()
             for atom in self.model.get_atoms():
@@ -60,14 +61,14 @@ class ParaParser:
                 cur_atom_type = atom.get_name()
                 if (cur_resi.strip() == resi.strip()) and (cur_atom_type.strip()
                  == atom_type.strip()):
-                    tmp = []
-                    tmp.append(atom_type.strip())
-                    tmp.append(resi.strip())
-                    tmp.append(exp)
-                    tmp.append(tol)
-                    tmp.append(atom.get_coord().tolist())
-                    results.append(tmp)
-        self.parsed = results
+                    #This is possibly a hack...
+                    if self.data_type.strip() == 'pcs':
+                        pDlist.append(PCSData(atom_type.strip(), resi.strip(),
+                        exp, tol, atom.get_coord().tolist()))
+                    elif self.data_type.strip() == 'pre':
+                        pDlist.append(PREData(atom_type.strip(), resi.strip(),
+                        exp, tol, atom.get_coord().tolist()))
+        self.parsed = pDlist
 
 
 
@@ -249,26 +250,20 @@ class RDCParser(ParaParser):
         self.Egamma = gamma
 
     def doParse(self):
-        results = []
+        pDList = []
         for i in range(0, len(self.dataset)):
             resi, atom_type, exp, tol =  self.dataset[i].split()
             at1, at2 = atom_type[1], atom_type[0]
             for atom in self.model.get_atoms():
                 cur_resi      = str(list(atom.get_parent().get_id())[1])
                 cur_atype = atom.get_name()
-                if (cur_resi.strip() == resi.strip()) and (at1.strip()
-                 == cur_atype.strip()):
-                    tmp = []
-                    tmp.append(at1.strip())
-                    tmp.append(resi.strip())
-                    tmp.append(exp)
-                    tmp.append(tol)
-                    tmp.append(atom.get_coord().tolist())
-                if (cur_resi.strip() == resi.strip()) and (at2.strip()
-                 == cur_atype.strip()):
-                    tmp.append(at2.strip())
-                    tmp.append(atom.get_coord().tolist())
-                    results.append(tmp)
-                    print len(results)
-        self.parsed = results
+                if (cur_resi.strip() == resi.strip()) and (at1.strip() ==
+                 cur_atype.strip()):
+                    c1 = (atom.get_coord().tolist())
+                if (cur_resi.strip() == resi.strip()) and (at2.strip() ==
+                 cur_atype.strip()):
+                    c2 = (atom.get_coord().tolist())
+                    pDList.append(RDCData(at1.strip(), resi.strip(), exp, tol,
+                     c1, at2.strip(),c2))
+        self.parsed = pDList
 

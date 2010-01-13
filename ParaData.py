@@ -217,11 +217,11 @@ class RDCData(ParaData):
         @type s_coord2:   list
         """
         self.spin_type  = spin_type
-        self.spin_type2 = spin_type2
         self.spin_id    = spin_id
         self.exp_val    = exp_val
         self.e_tol      = e_tol
         self.s_coord    = s_coord
+        self.spin_type2 = spin_type2
         self.s_coord2   = s_coord2
         self.p_type     = 'rdc'
 

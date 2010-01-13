@@ -6,6 +6,10 @@ sys.path.append("/home/mscook/Desktop/PhD/Projects/pyParaFit")
 
 from ParaData import *
 
+print 80*'-'
+print " Testing ParaData.py"
+print 80*'-'
+
 ################################################################################
 #
 # Testing the ParaData base class
