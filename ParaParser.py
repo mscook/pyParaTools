@@ -87,11 +87,11 @@ class PCSParser(ParaParser):
         self.metal_loc.append(float(sys.argv[4]))
         self.metal_loc.append(float(sys.argv[5]))
         self.metal_loc.append(float(sys.argv[6]))
-        self.ax           = stdin[7]
-        self.rh           = stdin[8]
-        self.Ealpha       = stdin[9]
-        self.Ebeta        = stdin[10]
-        self.Egamma       = stdin[11]
+        self.ax           = float(stdin[7])
+        self.rh           = float(stdin[8])
+        self.Ealpha       = float(stdin[9])
+        self.Ebeta        = float(stdin[10])
+        self.Egamma       = float(stdin[11])
 
 
 
@@ -212,11 +212,11 @@ class RDCParser(ParaParser):
         self.model        =self.structure[0]
         para_data_in = open(self.para_data_fn).readlines()
         self.dataset      = para_data_in
-        self.ax           = stdin[4]
-        self.rh           = stdin[5]
-        self.Ealpha       = stdin[6]
-        self.Ebeta        = stdin[7]
-        self.Egamma       = stdin[8]
+        self.ax           = float(stdin[4])
+        self.rh           = float(stdin[5])
+        self.Ealpha       = float(stdin[6])
+        self.Ebeta        = float(stdin[7])
+        self.Egamma       = float(stdin[8])
 
     def getAxial(self):
         return self.ax

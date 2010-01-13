@@ -48,8 +48,7 @@ class CalcPara:
 
 
     def PCSZXZ(self, parsed_pcs_data):
-        #zxz_rot  = self.ZXZRot(parsed_pcs_data.getAlpha(), parsed_pcs_data.getBeta(),
-        #parsed_pcs_data.getGamma())
+        zxz_rot  = self.ZXZRot(parsed_pcs_data.getAlpha(), parsed_pcs_data.getBeta(), parsed_pcs_data.getGamma())
         metalPos = parsed_pcs_data.getMetalLoc()
         axial    = parsed_pcs_data.getAxial()
         rhombic  = parsed_pcs_data.getRhombic()
