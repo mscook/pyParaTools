@@ -65,7 +65,7 @@ class ParaData:
 
     def getCoordz(self):
         """
-        Returns the y coordinate assigned to this spin
+        Returns the z coordinate assigned to this spin
         """
         return self.s_coord[2]
 
@@ -144,7 +144,7 @@ class ParaData:
         """
         Print 'Numbat' like format
         """
-        print '%4s%4s%8f%8f' % (self.spin_type, self.spin_id,
+        print '%s%6s%8.3f%8.3f' % (self.spin_type, self.spin_id,
         self.exp_val, self.e_tol)
 
 
@@ -301,14 +301,26 @@ class RDCData(ParaData):
         """
         Print 'Numbat' like format
         """
-        return '%4s%4s%8f%8f' % (self.spin_type+self.spin_type2, self.spin_id,
+        print '%s%6s%8.3f%8.3f' % (self.spin_type+self.spin_type2, self.spin_id,
         self.exp_val, self.e_tol)
 
 
     def lookupMGR(self):
         """
-        Return the gyromagnetic ratio for the coupling. Not working ATM.
+        Return the gyromagnetic ratios for the coupling.
+        See: http://nmrwiki.org/wiki/index.php?title=Gyromagnetic_ratio
         """
-        #TODO:Add this method. Get the gyromagnetic ratios from IUPAC book
-        pass
+        PI2        = 2*3.1415926535897931
+        H1mgr     = (PI2*42.576)*1e6
+        C13mgr    = (PI2*10.705)*1e6
+        Nmgr = []
+        N14mgr    = (PI2*3.0766)*1e6
+        N15mgr    = (PI2*-4.315)*1e6
+        Nmgr.append(N14mgr)
+        Nmgr.append(N15mgr)
+        O17mgr    = (PI2*-5.7716)*1e6
+        mgr = {'H':H1mgr, 'C':C13mgr, 'N':Nmgr, 'O':O17mgr}
+        mgr_1 = mgr[self.spin_type]
+        mgr_2 = mgr[self.spin_type2]
+        return mgr_1, mgr_2
 
