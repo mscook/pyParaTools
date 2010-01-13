@@ -50,8 +50,8 @@ class CalcPara:
     def PCSZXZ(self, parsed_pcs_data):
         zxz_rot  = self.ZXZRot(parsed_pcs_data.getAlpha(), parsed_pcs_data.getBeta(), parsed_pcs_data.getGamma())
         metalPos = parsed_pcs_data.getMetalLoc()
-        axial    = parsed_pcs_data.getAxial()
-        rhombic  = parsed_pcs_data.getRhombic()
+        Xax    = parsed_pcs_data.getAxial()
+        Xrh  = parsed_pcs_data.getRhombic()
         data     = parsed_pcs_data.getParsed()
 
         for pObject in range(0, len(data)):
@@ -65,16 +65,31 @@ class CalcPara:
             r2 = (x_t*x_t)+(y_t*y_t)+(z_t*z_t)
             r5 = (r2*r2) * math.sqrt(r2)
             tmp = 1.0/r5
-            pcs = tmp*(Dax * (3.0*z_t*z_t -r2) + Drh*1.5*(x_t*x_t - y_t*y_t))
+            pcs = tmp*(Xax * (3.0*z_t*z_t -r2) + Xrh*1.5*(x_t*x_t - y_t*y_t))
             print pcs
 
+    def PCSZYZ(self, parsed_pcs_data):
+        zyz_rot  = self.ZYZRot(parsed_pcs_data.getAlpha(), parsed_pcs_data.getBeta(), parsed_pcs_data.getGamma())
+        metalPos = parsed_pcs_data.getMetalLoc()
+        Xax    = parsed_pcs_data.getAxial()
+        Xrh  = parsed_pcs_data.getRhombic()
+        data     = parsed_pcs_data.getParsed()
+
+        for pObject in range(0, len(data)):
+            cur = data[pObject].getCoord()
+            X   = cur[0] - metalPos[0]
+            Y   = cur[1] - metalPos[1]
+            Z   = cur[2] - metalPos[2]
+            x_t = zyz_rot[0][0]*X + zyz_rot[0][1]*Y + zyz_rot[0][2]*Z
+            y_t = zyz_rot[1][0]*X + zyz_rot[1][1]*Y + zyz_rot[1][2]*Z
+            z_t = zyz_rot[2][0]*X + zyz_rot[2][1]*Y + zyz_rot[2][2]*Z
+            r2 = (x_t*x_t)+(y_t*y_t)+(z_t*z_t)
+            r5 = (r2*r2) * math.sqrt(r2)
+            tmp = 1.0/r5
+            pcs = tmp*(Xax * (3.0*z_t*z_t -r2) + Xrh*1.5*(x_t*x_t - y_t*y_t))
+            print data[pObject].getName(),data[pObject].getId(), pcs
 
 
-
-
-
-    def PCSZYZ(parsed_pcs_data):
-        pass
     def RDCZXZ(parsed_rdc_data):
         pass
     def RDCZYZ(parsed_rdc_data):

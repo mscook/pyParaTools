@@ -17,5 +17,5 @@ pcs1 = PCSParser(sys.argv)
 pcs1.doParse()
 #print pcs1.getParsed()
 pcs_calcer = CalcPara()
-pcs_calcer.PCSZXZ(pcs1)
+pcs_calcer.PCSZYZ(pcs1)
 

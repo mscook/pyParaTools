@@ -1,4 +1,4 @@
-import sys
+import sys, math
 from Bio.PDB import *
 from ParaData import *
 
@@ -87,8 +87,9 @@ class PCSParser(ParaParser):
         self.metal_loc.append(float(sys.argv[4]))
         self.metal_loc.append(float(sys.argv[5]))
         self.metal_loc.append(float(sys.argv[6]))
-        self.ax           = float(stdin[7])
-        self.rh           = float(stdin[8])
+        vvu_scal = (1./((12*math.pi))*10000)
+        self.ax           = float(stdin[7])*vvu_scal
+        self.rh           = float(stdin[8])*vvu_scal
         self.Ealpha       = float(stdin[9])
         self.Ebeta        = float(stdin[10])
         self.Egamma       = float(stdin[11])
@@ -212,8 +213,9 @@ class RDCParser(ParaParser):
         self.model        =self.structure[0]
         para_data_in = open(self.para_data_fn).readlines()
         self.dataset      = para_data_in
-        self.ax           = float(stdin[4])
-        self.rh           = float(stdin[5])
+        vvu_scal = (1./((12*math.pi))*10000)
+        self.ax           = float(stdin[4])*vvu_scal
+        self.rh           = float(stdin[5])*vvu_scal
         self.Ealpha       = float(stdin[6])
         self.Ebeta        = float(stdin[7])
         self.Egamma       = float(stdin[8])
