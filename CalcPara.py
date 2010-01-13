@@ -55,7 +55,20 @@ class CalcPara:
         data     = parsed_pcs_data.getParsed()
 
         for pObject in range(0, len(data)):
-            print data[pObject].getCoord()
+            cur = data[pObject].getCoord()
+            X   = cur[0] - metalPos[0]
+            Y   = cur[1] - metalPos[1]
+            Z   = cur[2] - metalPos[2]
+            x_t = zxz_rot[0][0]*X + zxz_rot[0][1]*Y + zxz_rot[0][2]*Z
+            y_t = zxz_rot[1][0]*X + zxz_rot[1][1]*Y + zxz_rot[1][2]*Z
+            z_t = zxz_rot[2][0]*X + zxz_rot[2][1]*Y + zxz_rot[2][2]*Z
+            r2 = (x_t*x_t)+(y_t*y_t)+(z_t*z_t)
+            r5 = (r2*r2) * math.sqrt(r2)
+            tmp = 1.0/r5
+            pcs = tmp*(Dax * (3.0*z_t*z_t -r2) + Drh*1.5*(x_t*x_t - y_t*y_t))
+            print pcs
+
+
 
 
 
