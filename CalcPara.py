@@ -2,7 +2,7 @@ import math
 
 ###############################################################################
 #
-# Calculate: 
+# Calculate:
 #   * Pseudocontact Shift                   (PCS)
 #   * Residual Dipolar Coupling             (RDC)
 #   * Paramagnetic Relaxation Enhancement   (PRE)
@@ -20,9 +20,9 @@ def calcsPCSZXZ(angles, rH, rM, Dax, Drh, H):
 
 	PI = math.pi
 
-	rot = [["00", "01", "02"], ["10", "11", "12"], ["20", "21", "22"]] 
-	
-	ca = math.cos(angles[0]) ### FIXED !! 
+	rot = [["00", "01", "02"], ["10", "11", "12"], ["20", "21", "22"]]
+
+	ca = math.cos(angles[0]) ### FIXED !!
 	cb = math.cos(angles[1]) ### DON'T CONVERT TO RADIANS TWICE !!!
 	cg = math.cos(angles[2])
 
@@ -42,7 +42,7 @@ def calcsPCSZXZ(angles, rH, rM, Dax, Drh, H):
 
 	X = rH[0] - rM[0]
 	Y = rH[1] - rM[1]
-	Z = rH[2] - rM[2] 
+	Z = rH[2] - rM[2]
 
 	x_t = rot[0][0]*X + rot[0][1]*Y +rot[0][2]*Z
 	y_t = rot[1][0]*X + rot[1][1]*Y +rot[1][2]*Z
@@ -69,7 +69,7 @@ def calcsPCSZYZ(angles, rH, rM, Dax, Drh):
 	scal_const = (1./((12*PI))*10000)
 
 	Dax = Dax*scal_const
-	Drh = Drh*scal_const	
+	Drh = Drh*scal_const
 
         rot = [["00", "01", "02"], ["10", "11", "12"], ["20", "21", "22"]]
 
@@ -125,11 +125,11 @@ def calcsPCSZYZ(angles, rH, rM, Dax, Drh):
 ###############################################################################
 def calcsPCS_MATRIX(rot_matrix, rH, rM, Dax, Drh, H):
 
-	rot = [["00", "01", "02"], ["10", "11", "12"], ["20", "21", "22"]] 
-	
+	rot = [["00", "01", "02"], ["10", "11", "12"], ["20", "21", "22"]]
+
 	rot[0][0] = rot_matrix[0][0]
-	rot[0][1] = rot_matrix[0][1] 
-	rot[0][2] = rot_matrix[0][2] 
+	rot[0][1] = rot_matrix[0][1]
+	rot[0][2] = rot_matrix[0][2]
 	rot[1][0] = rot_matrix[1][0]
 	rot[1][1] = rot_matrix[1][1]
 	rot[1][2] = rot_matrix[1][2]
@@ -140,7 +140,7 @@ def calcsPCS_MATRIX(rot_matrix, rH, rM, Dax, Drh, H):
 
 	X = rH[0] - rM[0]
 	Y = rH[1] - rM[1]
-	Z = rH[2] - rM[2] 
+	Z = rH[2] - rM[2]
 
 	x_t = rot[0][0]*X + rot[0][1]*Y +rot[0][2]*Z
 	y_t = rot[1][0]*X + rot[1][1]*Y +rot[1][2]*Z
@@ -171,10 +171,10 @@ def calcRDCS(angles, rH, rN, Dax, Drh, H):
  #Boltzman Constant: 1.3806503e-23 [kboltz]
  #T: 298
  #VVU 3.76991118431e-35
- 
+
 	PI = math.pi
 	machB0 = 18.8
-	temp =  298	
+	temp =  298
 	gammaH = 267.522e6
 	gammaN = 19.338e6
 	plankc = 1.05457148e-34  # NOTE: HBAR
@@ -182,10 +182,10 @@ def calcRDCS(angles, rH, rN, Dax, Drh, H):
 	distNH = 1.03e-10
         vvu_s = 3.76991118431e-35
 
-	
-	rot = [["00", "01", "02"], ["10", "11", "12"], ["20", "21", "22"]] 
-	
-	ca = math.cos(angles[0]) ### FIXED !! 
+
+	rot = [["00", "01", "02"], ["10", "11", "12"], ["20", "21", "22"]]
+
+	ca = math.cos(angles[0]) ### FIXED !!
 	cb = math.cos(angles[1]) ### DON'T CONVERT TO RADIANS TWICE !!!
 	cg = math.cos(angles[2])
 
@@ -205,25 +205,25 @@ def calcRDCS(angles, rH, rN, Dax, Drh, H):
 
 	X = rH[0] - rN[0]
 	Y = rH[1] - rN[1]
-	Z = rH[2] - rN[2] 
+	Z = rH[2] - rN[2]
 
 	x_t = rot[0][0]*X + rot[0][1]*Y +rot[0][2]*Z
 	y_t = rot[1][0]*X + rot[1][1]*Y +rot[1][2]*Z
 	z_t = rot[2][0]*X + rot[2][1]*Y +rot[2][2]*Z
 
-	
+
 	r2 = (x_t*x_t)+(y_t*y_t)+(z_t*z_t)
 	#r5 = (r2*r2) * math.sqrt(r2)
 	tmp = 1.0/r2
-	
+
 
 	rdc_tmp = (Dax * (3.0*z_t*z_t -r2) + Drh*1.5*(x_t*x_t - y_t*y_t))*tmp
         a = -1*(machB0**2)*gammaH*gammaN*(plankc)
 	b = ((distNH**3)*kboltz*temp)*(120*math.pi**2)
 	rdc = (a/b)*vvu_s*rdc_tmp
-	return rdc 
+	return rdc
 
- 
+
 ###############################################################################
 #
 # Calculate the RDCs given the COMBINED rotation MATRIX
@@ -239,10 +239,10 @@ def calcRDCS_MATRIX(rot_matrix, rH, rN, Dax, Drh, H):
  #Boltzman Constant: 1.3806503e-23 [kboltz]
  #T: 298
  #VVU 3.76991118431e-35
- 
+
 	PI = math.pi
 	machB0 = 18.8
-	temp =  298	
+	temp =  298
 	gammaH = 267.522e6
 	gammaN = 19.338e6
 	plankc = 1.05457148e-34  # NOTE: HBAR
@@ -250,11 +250,11 @@ def calcRDCS_MATRIX(rot_matrix, rH, rN, Dax, Drh, H):
 	distNH = 1.03e-10
         vvu_s = 3.76991118431e-35
 
-	rot = [["00", "01", "02"], ["10", "11", "12"], ["20", "21", "22"]] 
-	
+	rot = [["00", "01", "02"], ["10", "11", "12"], ["20", "21", "22"]]
+
 	rot[0][0] = rot_matrix[0][0]
-	rot[0][1] = rot_matrix[0][1] 
-	rot[0][2] = rot_matrix[0][2] 
+	rot[0][1] = rot_matrix[0][1]
+	rot[0][2] = rot_matrix[0][2]
 	rot[1][0] = rot_matrix[1][0]
 	rot[1][1] = rot_matrix[1][1]
 	rot[1][2] = rot_matrix[1][2]
@@ -265,23 +265,23 @@ def calcRDCS_MATRIX(rot_matrix, rH, rN, Dax, Drh, H):
 
 	X = rH[0] - rN[0]
 	Y = rH[1] - rN[1]
-	Z = rH[2] - rN[2] 
+	Z = rH[2] - rN[2]
 
 	x_t = rot[0][0]*X + rot[0][1]*Y +rot[0][2]*Z
 	y_t = rot[1][0]*X + rot[1][1]*Y +rot[1][2]*Z
 	z_t = rot[2][0]*X + rot[2][1]*Y +rot[2][2]*Z
 
-	
+
 	r2 = (x_t*x_t)+(y_t*y_t)+(z_t*z_t)
 	#r5 = (r2*r2) * math.sqrt(r2)
 	tmp = 1.0/r2
-	
+
 
 	rdc_tmp = (Dax * (3.0*z_t*z_t -r2) + Drh*1.5*(x_t*x_t - y_t*y_t))*tmp
         a = -1*(machB0**2)*gammaH*gammaN*(plankc)
 	b = ((distNH**3)*kboltz*temp)*(120*math.pi**2)
 	rdc = (a/b)*vvu_s*rdc_tmp
-	return rdc 
+	return rdc
 
 
 
@@ -289,7 +289,7 @@ def calcRDCS_MATRIX(rot_matrix, rH, rN, Dax, Drh, H):
 #
 # Calculate the scaling of X-tensor to the Alignment Tensor
 #
-###############################################################################	
+###############################################################################
 def RDC_scal(Dax, Drh):
 
  #B0: 18.8
@@ -310,8 +310,8 @@ def RDC_scal(Dax, Drh):
         kboltz = 1.3806503e-23
         distNH = 1.03e-10
         vvu_s = 3.76991118431e-35
-	
-	
+
+
         a = -1*(machB0**2)*gammaH*gammaN*(plankc)
         b = ((distNH**3)*kboltz*temp)*(120*math.pi**2)
         return (a/b)*vvu_s*Dax, (a/b)*vvu_s*Drh
@@ -326,3 +326,4 @@ def calc_PRE(c, rS, rM):
     r2 = (rM[0] - rS[0])**2 + (rM[1] - rS[1])**2 + (rM[2] - rS[2])**2
     r = math.sqrt(r2)
     return c/(r**6)
+

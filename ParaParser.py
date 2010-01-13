@@ -6,6 +6,13 @@ class ParaParser:
         self.data_type    = stdin[1]
         self.pdb_fn       = stdin[2]
         self.para_data_fn = stdin[3]
+        parser=PDBParser()
+        structure_in=parser.get_structure('cur_structure', self.pdb_fn)
+        self.structure    = structure_in
+        self.model        =self.structure[0]
+        para_data_in = open(self.para_data_fn).readlines()
+        self.dataset      = para_data_in
+        self.parsed       = []
 
     def getDataType(self):
         return self.data_type
@@ -16,6 +23,20 @@ class ParaParser:
     def getParaDataFn(self):
         return self.para_data_fn
 
+    def getStructure(self):
+        return self.structure
+
+    def getDataset(self):
+        return self.dataset
+
+    def getNumModels(self):
+        nmodels = 0
+        for model in self.structure:
+            nmodels = nmodels+1
+        return nmodels
+
+    def getParsed(self):
+        return self.parsed
 
     def setParaDataFn(self, data_name):
         self.data_type = data_name
@@ -24,184 +45,230 @@ class ParaParser:
         self.pdb_fn = pdb_name
 
     def setParaDataFn(self, para_name):
-        para_data_fn = para_name
+        self.para_data_fn = para_name
+
+    def setModel(self, num):
+        self.model = self.structure[num]
+
+    def doParse(self):
+        results = []
+        for i in range(0, len(self.dataset)):
+            resi, atom_type, exp, tol =  self.dataset[i].split()
+            for atom in self.model.get_atoms():
+                cur_resi      = str(list(atom.get_parent().get_id())[1])
+                cur_atom_type = atom.get_name()
+                if (cur_resi.strip() == resi.strip()) and (cur_atom_type.strip()
+                 == atom_type.strip()):
+                    tmp = []
+                    tmp.append(atom_type.strip())
+                    tmp.append(resi.strip())
+                    tmp.append(exp)
+                    tmp.append(tol)
+                    tmp.append(atom.get_coord().tolist())
+                    results.append(tmp)
+        self.parsed = results
 
 
-    def open_data()
+
+class PCSParser(ParaParser):
+    def __init__(self, stdin):
+        self.data_type    = stdin[1]
+        self.pdb_fn       = stdin[2]
+        self.para_data_fn = stdin[3]
         parser=PDBParser()
         structure_in=parser.get_structure('cur_structure', self.pdb_fn)
-        para_data_in = open(self.para_data_fn.readlines())
-        return structure_in, para_data_in
+        self.structure    = structure_in
+        self.model        =self.structure[0]
+        para_data_in = open(self.para_data_fn).readlines()
+        self.dataset      = para_data_in
+        self.metal_loc    = []
+        self.metal_loc.append(float(sys.argv[4]))
+        self.metal_loc.append(float(sys.argv[5]))
+        self.metal_loc.append(float(sys.argv[6]))
+        self.ax           = stdin[7]
+        self.rh           = stdin[8]
+        self.Ealpha       = stdin[9]
+        self.Ebeta        = stdin[10]
+        self.Egamma       = stdin[11]
 
 
 
-    def check_models()
-        structure, data = open_data()
-        nmodels = 0
-        for model in structure:
-            nmodels = nmodels+1
-        if nmodels > 1:
-            print "WARNING:", nmodels,
-                "models exist. Working with only the first model"
-        print
+    def getMetalLoc(self):
+        return self.metal_loc
 
-    def match_data()
-        open_data()
-        check_models()
+    def getMetalLocx(self):
+        return self.metal_loc[1]
 
+    def getMetalLocy(self):
+        return self.metal_loc[2]
 
-#        parsed = {}
-#        for i in range(0, len(data)):
-#            resi, atom_type, exp, tol =  data[i].split()
-#            for atom in structure[0].get_atoms():
-#                cur_resi      = str(list(atom.get_parent().get_id())[1])
-#                cur_atom_type = atom.get_name()
-#                if (cur_resi.strip() == resi.strip()) and (cur_atom_type.strip() == atom_type.strip()):
-#                    d_key =  resi
-#                    d_val = atom.get_coord().tolist()
-#                    d_val.insert(0,float(tol))
-#                    d_val.insert(0,float(exp))
-#                    d_val.insert(0,atom_type)
-#                    d_val.insert(0,int(resi))
-#                results[d_key] = d_val
-#        #See:http://pyfaq.infogami.com/how-do-i-create-a-multidimensional-list
-#        return parsed
+    def getMetalLocz(self):
+        return self.metal_loc[2]
+
+    def getAxial(self):
+        return self.ax
+
+    def getRhombic(self):
+        return self.rh
+
+    def getAlpha(self):
+        return self.Ealpha
+
+    def getBeta(self):
+        return self.Ebeta
+
+    def getGamma(self):
+        return self.Egamma
 
 
+    def setMetalLoc(self, metal_xyz):
+        self.metal_loc = metal_xyz
 
-#class PCSParser(ParaParser):
-#    def __init__(self, stdin):
-#        self.data_type    = stdin[1]
-#        self.pdb_fn       = stdin[2]
-#        self.para_data_fn = stdin[3]
-#        self.metal_loc    = []
-#        self.metal_loc.append(float(sys.argv[4])
-#        self.metal_loc.append(float(sys.argv[5])
-#        self.metal_loc.append(float(sys.argv[6])
-#        self.ax           = stdin[7]
-#        self.rh           = stdin[8]
-#        self.Ealpha       = stdin[9]
-#        self.Ebeta        = stdin[10]
-#        self.Egamma       = stdin[11]
+    def setMetalLocx(self, mx):
+        self.metal_loc[1] = mx
 
-#            def setMetalLoc(self, metal_xyz):
-#        self.metal_loc = []
-#        self.metal_loc.append(metal_xyz[0])
-#        self.metal_loc.append(metal_xyz[1])
-#        self.metal_loc.append(metal_xyz[2])
+    def setMetalLocy(self, my):
+        self.metal_loc[2] = my
 
-#    def getMetalLoc(self):
-#        return self.metal_loc
+    def setMetalLocz(self, mz):
+        self.metal_loc[2] = mz
 
-#    def getAxial(self):
-#        return self.ax
-#    def getRhombic(self):
-#        return self.rh
-#    def getAlpha(self):
-#        return self.Ealpha
-#    def getBeta(self):
-#        return self.Ebeta
-#    def getGamma(self):
-#        return self.Egamma
+    def setAxial(self, axial):
+        self.ax = axial
 
-#    def setAxial(self, axial):
-#        self.ax = axial
-#    def setRhombic(self, rhombic):
-#        self.rh = rhombic
-#    def setAlpha(self, A):
-#        self.Ealpha = A
-#    def setBeta(self, B):
-#        self.Ebeta  = B
-#    def setGamma(self, G):
-#        self.Egamma = G
+    def setRhombic(self, rhombic):
+        self.rh = rhombic
 
+    def setAlpha(self, alpha):
+        self.Ealpha = alpha
 
-#class PREParser(ParaParser):
-#    def __init__(self, stdin):
-#        self.data_type    = stdin[1]
-#        self.pdb_fn       = stdin[2]
-#        self.para_data_fn = stdin[3]
-#        self.metal_loc    = []
-#        self.metal_loc.append(float(sys.argv[4])
-#        self.metal_loc.append(float(sys.argv[5])
-#        self.metal_loc.append(float(sys.argv[6])
-#        self.c            = stdin[7]
+    def setBeta(self, beta):
+        self.Ebeta = beta
 
-#        def getConstant(self):
-#        return self.c
-
-#        def setConstant(self, constant):
-#        self.c = constant
+    def setGamma(self, gamma):
+        self.Egamma = gamma
 
 
 
-#        parser=PDBParser()	# Could use: PERMISSIVE=1 if required
-#	structure=parser.get_structure('cur_structure', sname)
-#	data = open(dname, 'r').readlines()
+class PREParser(ParaParser):
+    def __init__(self, stdin):
+        self.data_type    = stdin[1]
+        self.pdb_fn       = stdin[2]
+        self.para_data_fn = stdin[3]
+        parser=PDBParser()
+        structure_in=parser.get_structure('cur_structure', self.pdb_fn)
+        self.structure    = structure_in
+        self.model        =self.structure[0]
+        para_data_in = open(self.para_data_fn).readlines()
+        self.dataset      = para_data_in
+        self.metal_loc    = []
+        self.metal_loc.append(float(sys.argv[4]))
+        self.metal_loc.append(float(sys.argv[5]))
+        self.metal_loc.append(float(sys.argv[6]))
+        self.c            = float(stdin[7])
 
-#	nmodels = 0
-#        for model in structure:
-#                nmodels = nmodels+1
-#	if nmodels > 1:
-#		print "WARNING:", nmodels, "models exist. Working with only the first model"
-#		print
+    def getMetalLoc(self):
+        return self.metal_loc
 
-#	for i in range(0, len(data)):
-#		resi, atom_type, exp, tol =  data[i].split()
-#		for atom in structure[0].get_atoms():
-#			cur_resi      = str(list(atom.get_parent().get_id())[1])
-#			cur_atom_type = atom.get_name()
-#			if (cur_resi.strip() == resi.strip()) and (cur_atom_type.strip() == atom_type.strip()):
-#				d_key =  resi
-#				d_val = atom.get_coord().tolist()
-#				d_val.insert(0,float(tol))
-#				d_val.insert(0,float(exp))
-#				d_val.insert(0,atom_type)
-#				d_val.insert(0,int(resi))
-#				results[d_key] = d_val
-#	return results
+    def getMetalLocx(self):
+        return self.metal_loc[1]
 
+    def getMetalLocy(self):
+        return self.metal_loc[2]
 
-#class PCSParser(ParaParser)
+    def getMetalLocz(self):
+        return self.metal_loc[2]
 
-#class PRE
+    def getConstant(self):
+        return self.c
 
+    def setMetalLoc(self, metal_xyz):
+        self.metal_loc = metal_xyz
 
+    def setMetalLocx(self, mx):
+        self.metal_loc[1] = mx
 
-#type = [1]
-#pdb     = sys.argv[2]
-#data    = sys.argv[3]
-#metal   = [float(sys.argv[4]), float(sys.argv[5]), float(sys.argv[6])]
-#ax      = float(sys.argv[7])
-#rh      = float(sys.argv[8])
+    def setMetalLocy(self, my):
+        self.metal_loc[2] = my
 
-#euler   = [float(sys.argv[9]), float(sys.argv[10]), float(sys.argv[11])]
-#euler[0]= math.radians(euler[0])
-#euler[1]= math.radians(euler[1])
-#euler[2]= math.radians(euler[2])
+    def setMetalLocz(self, mz):
+        self.metal_loc[2] = mz
+
+    def setConstant(self, constant):
+        self.c = constant
 
 
-#    def getName(self):
-#        return self.resi_name
-#    def getId(self):
-#        return self.resi_id
-#    def getVal(self):
-#        return self.exp_val
-#    def getTol(self):
-#        return self.e_tol
-#    def getCoord(self):
-#        return self.s_coord
-#    def getType(self):
-#        return self.p_type
 
-#    def setName(self, name):
-#        self.resi_name = name
-#    def setId(self, r_id):
-#        self.resi_id = r_id
-#    def setVal(self, val):
-#        self.exp_val = val
-#    def setTol(self, tol):
-#        self.e_tol = tol
-#    def setCoord(self, coord):
-#        self.s_coord = coord
+class RDCParser(ParaParser):
+    def __init__(self, stdin):
+        self.data_type    = stdin[1]
+        self.pdb_fn       = stdin[2]
+        self.para_data_fn = stdin[3]
+        parser=PDBParser()
+        structure_in=parser.get_structure('cur_structure', self.pdb_fn)
+        self.structure    = structure_in
+        self.model        =self.structure[0]
+        para_data_in = open(self.para_data_fn).readlines()
+        self.dataset      = para_data_in
+        self.ax           = stdin[4]
+        self.rh           = stdin[5]
+        self.Ealpha       = stdin[6]
+        self.Ebeta        = stdin[7]
+        self.Egamma       = stdin[8]
+
+    def getAxial(self):
+        return self.ax
+
+    def getRhombic(self):
+        return self.rh
+
+    def getAlpha(self):
+        return self.Ealpha
+
+    def getBeta(self):
+        return self.Ebeta
+
+    def getGamma(self):
+        return self.Egamma
+
+
+    def setAxial(self, axial):
+        self.ax = axial
+
+    def setRhombic(self, rhombic):
+        self.rh = rhombic
+
+    def setAlpha(self, alpha):
+        self.Ealpha = alpha
+
+    def setBeta(self, beta):
+        self.Ebeta = beta
+
+    def setGamma(self, gamma):
+        self.Egamma = gamma
+
+    def doParse(self):
+        results = []
+        for i in range(0, len(self.dataset)):
+            resi, atom_type, exp, tol =  self.dataset[i].split()
+            at1, at2 = atom_type[1], atom_type[0]
+            for atom in self.model.get_atoms():
+                cur_resi      = str(list(atom.get_parent().get_id())[1])
+                cur_atom_type = atom.get_name()
+                c_at1, c_at2 = cur_atom_type[1], cur_atom_type[0]
+                tmp1 = []
+                if (cur_resi.strip() == resi.strip()) and (at1.strip()
+                 == c_at1.strip()):
+                    tmp.append(atom_type.strip())
+                    tmp.append(resi.strip())
+                    tmp.append(exp)
+                    tmp.append(tol)
+                    tmp.append(atom.get_coord().tolist())
+                if (cur_resi.strip() == resi.strip()) and (at2.strip()
+                 == c_at2.strip()):
+
+
+                    results.append(tmp)
+        self.parsed = results
+        return atom1, atom2
 
