@@ -1,5 +1,6 @@
 import sys
 from Bio.PDB import *
+import ParaData
 
 class ParaParser:
     def __init__(self, stdin):
@@ -254,21 +255,20 @@ class RDCParser(ParaParser):
             at1, at2 = atom_type[1], atom_type[0]
             for atom in self.model.get_atoms():
                 cur_resi      = str(list(atom.get_parent().get_id())[1])
-                cur_atom_type = atom.get_name()
-                c_at1, c_at2 = cur_atom_type[1], cur_atom_type[0]
-                tmp1 = []
+                cur_atype = atom.get_name()
                 if (cur_resi.strip() == resi.strip()) and (at1.strip()
-                 == c_at1.strip()):
-                    tmp.append(atom_type.strip())
+                 == cur_atype.strip()):
+                    tmp = []
+                    tmp.append(at1.strip())
                     tmp.append(resi.strip())
                     tmp.append(exp)
                     tmp.append(tol)
                     tmp.append(atom.get_coord().tolist())
                 if (cur_resi.strip() == resi.strip()) and (at2.strip()
-                 == c_at2.strip()):
-
-
+                 == cur_atype.strip()):
+                    tmp.append(at2.strip())
+                    tmp.append(atom.get_coord().tolist())
                     results.append(tmp)
+                    print len(results)
         self.parsed = results
-        return atom1, atom2
 

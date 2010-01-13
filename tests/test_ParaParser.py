@@ -17,6 +17,6 @@ parse.doParse()
 print parse.getParsed()
 
 rdc = RDCParser(sys.argv)
-c,d = rdc.doParse()
-print c,d
+rdc.doParse()
+print rdc.parsed
 

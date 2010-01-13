@@ -197,8 +197,8 @@ class PREData(ParaData):
 
 
 class RDCData(ParaData):
-    def __init__(self, spin_type, spin_type2, spin_id, exp_val, e_tol,
-     s_coord, s_coord2):
+    def __init__(self, spin_type, spin_id, exp_val, e_tol,
+     s_coord, spin_type2, s_coord2):
         """
         A RDC data container
         @param spin_type: The spin type of the 1st atom in the coupling
@@ -301,7 +301,7 @@ class RDCData(ParaData):
         """
         Print 'Numbat' like format
         """
-        print '%4s%4s%8f%8f' % (self.spin_type+self.spin_type2, self.spin_id,
+        return '%4s%4s%8f%8f' % (self.spin_type+self.spin_type2, self.spin_id,
         self.exp_val, self.e_tol)
 
 
