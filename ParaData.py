@@ -1,3 +1,5 @@
+import math
+
 class ParaData:
 
     def __init__(self, spin_type, spin_id, exp_val, e_tol, s_coord):
@@ -310,7 +312,7 @@ class RDCData(ParaData):
         Return the gyromagnetic ratios for the coupling.
         See: http://nmrwiki.org/wiki/index.php?title=Gyromagnetic_ratio
         """
-        PI2        = 2*3.1415926535897931
+        PI2        = 2*math.pi
         H1mgr     = (PI2*42.576)*1e6
         C13mgr    = (PI2*10.705)*1e6
         Nmgr = []

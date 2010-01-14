@@ -1,1 +1,4 @@
 *.pyc
+tests/DATASETS/*
+tests/PREfit_inps/*
+tests/STRUCTURES/*

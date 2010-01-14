@@ -12,10 +12,15 @@ print 80*'-'
 print " Testing CalcPara.py"
 print 80*'-'
 
-#python test_ParaParser.py pcs ~/Desktop/PREfit_python/TESTDATA/PDB/m0.pdb ~/Desktop/PREfit_python/TESTDATA/PCS/EXPERIMENTAL/LeucineZipper_3.0YbDPA3.npc 1 1 1 30 10 90 90 90
+#python test_ParaParser.py pcs STRUCTURES/epsilon.pdb DATASETS/PCS/PCS_epsilon_CNH.npc 1 1 1 30 10 90 90 90
 pcs1 = PCSParser(sys.argv)
 pcs1.doParse()
 #print pcs1.getParsed()
 pcs_calcer = CalcPara()
 pcs_calcer.PCSZYZ(pcs1)
+
+#pre1 = PREParser(sys.argv)
+#pre1.doParse()
+#pre_calc = CalcPara()
+#pre_calc.PRE(pre1)
 
