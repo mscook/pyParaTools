@@ -17,9 +17,9 @@ class ParaData:
         @type s_coord:    list
         """
         self.spin_type = spin_type
-        self.spin_id   = spin_id
-        self.exp_val   = exp_val
-        self.e_tol     = e_tol
+        self.spin_id   = int(spin_id)
+        self.exp_val   = float(exp_val)
+        self.e_tol     = float(e_tol)
         self.s_coord   = s_coord
         self.p_type    = 'unknown'
 
@@ -166,9 +166,9 @@ class PCSData(ParaData):
         @type s_coord:    list
         """
         self.spin_type  = spin_type
-        self.spin_id    = spin_id
-        self.exp_val    = exp_val
-        self.e_tol      = e_tol
+        self.spin_id    = int(spin_id)
+        self.exp_val    = float(exp_val)
+        self.e_tol      = float(e_tol)
         self.s_coord    = s_coord
         self.p_type     = 'pcs'
 
@@ -190,9 +190,9 @@ class PREData(ParaData):
         @type s_coord:    list
         """
         self.spin_type  = spin_type
-        self.spin_id    = spin_id
-        self.exp_val    = exp_val
-        self.e_tol      = e_tol
+        self.spin_id    = int(spin_id)
+        self.exp_val    = float(exp_val)
+        self.e_tol      = float(e_tol)
         self.s_coord    = s_coord
         self.p_type     = 'pre'
 

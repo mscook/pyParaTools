@@ -1,4 +1,5 @@
 import math
+from ParaUtils import *
 
 class CalcPara:
 
@@ -8,48 +9,7 @@ class CalcPara:
 #    vvu_s  = 3.76991118431e-35  # not exactly sure where this comes from...
 
 
-    def ZXZRot(self, A,B,G):
-        rot = [None]*3
-        for i in range(3):
-            rot[i] = [None] * 3
-        ca = math.cos(math.radians(A))
-        cb = math.cos(math.radians(B))
-        cg = math.cos(math.radians(G))
-        sa = math.sin(math.radians(A))
-        sb = math.sin(math.radians(B))
-        sg = math.sin(math.radians(G))
-        rot[0][0] = ( cg * ca) - (cb * sa * sg)
-        rot[0][1] = ( cg * sa) + (cb * ca * sg)
-        rot[0][2] = ( sg * sb)
-        rot[1][0] = (-sg * ca) - (cb * sa * cg)
-        rot[1][1] = (-sg * sa) + (cb * ca * cg)
-        rot[1][2] = ( cg * sb)
-        rot[2][0] = ( sb * sa)
-        rot[2][1] = (-sb * ca)
-        rot[2][2] =   cb
-        return rot
 
-
-    def ZYZRot(self,A,B,G):
-        rot = [None]*3
-        for i in range(3):
-            rot[i] = [None] * 3
-        ca = math.cos(math.radians(A))
-        cb = math.cos(math.radians(B))
-        cg = math.cos(math.radians(G))
-        sa = math.sin(math.radians(A))
-        sb = math.sin(math.radians(B))
-        sg = math.sin(math.radians(G))
-        rot[0][0] = (-sg * sa) + (cb * ca * cg)
-        rot[0][1] = ( sg * ca) + (cb * sa * cg)
-        rot[0][2] = ( -cg * sb)
-        rot[1][0] = (-cg * sa) - (cb * ca * sg)
-        rot[1][1] = (cg * ca) - (cb * sa * sg)
-        rot[1][2] = ( sg * sb)
-        rot[2][0] = ( sb * ca)
-        rot[2][1] = (sb * sa)
-        rot[2][2] =   cb
-        return rot
 
 
 #    def RDCScal(self, B0, temp, gH, gN):
@@ -59,7 +19,7 @@ class CalcPara:
 
 
     def PCSZXZ(self, parsed_pcs_data):
-        zxz_rot  = self.ZXZRot(parsed_pcs_data.getAlpha(), parsed_pcs_data.getBeta(), parsed_pcs_data.getGamma())
+        zxz_rot  = ZXZRot(parsed_pcs_data.getAlpha(), parsed_pcs_data.getBeta(), parsed_pcs_data.getGamma())
         metalPos = parsed_pcs_data.getMetalLoc()
         Xax    = parsed_pcs_data.getAxial()
         Xrh  = parsed_pcs_data.getRhombic()
@@ -80,7 +40,7 @@ class CalcPara:
             print pcs
 
     def PCSZYZ(self, parsed_pcs_data):
-        zyz_rot  = self.ZYZRot(parsed_pcs_data.getAlpha(), parsed_pcs_data.getBeta(), parsed_pcs_data.getGamma())
+        zyz_rot  = ZYZRot(parsed_pcs_data.getAlpha(), parsed_pcs_data.getBeta(), parsed_pcs_data.getGamma())
         metalPos = parsed_pcs_data.getMetalLoc()
         Xax      = parsed_pcs_data.getAxial()
         Xrh      = parsed_pcs_data.getRhombic()
