@@ -42,7 +42,7 @@ print base.getCoordz()
 print base.getCoordz() ==coord[2]
 print base.getType()
 print base.getType() =='unknown'
-base.printNice()
+base
 
 st_n      = 'N'
 sid_n     = 2
@@ -85,7 +85,7 @@ tol     = 0.1
 coord   = [1.546, 2.956, 5.100]
 pcs = PCSData(st, sid, exp_val, tol,coord)
 print pcs.getType()
-pcs.printNice()
+pcs
 
 ################################################################################
 #
@@ -100,7 +100,7 @@ tol     = 0.1
 coord   = [1.546, 2.956, 5.100]
 pre = PREData(st, sid, exp_val, tol,coord)
 print pre.getType()
-pre.printNice()
+pre
 
 ################################################################################
 #
@@ -144,7 +144,6 @@ print a ==coord[2]
 print b == coord2[2]
 print rdc.getType()
 print rdc.getType() =='rdc'
-rdc.printNice()
 a, b = rdc.lookupMGR()
 print a,b
 

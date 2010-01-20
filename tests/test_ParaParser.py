@@ -15,7 +15,8 @@ print 80*'-'
 ###pcs1.doParse()
 ###print pcs1.getParsed()
 
-#~/Desktop/PhD/Projects/pyParaFit/tests$ python test_ParaParser.py pre ~/Desktop/PREfit_python/TESTDATA/PDB/m0.pdb ~/Desktop/PREfit_python/TESTDATA/PRE/EXPERIMENTAL/PREdata_intra_contribution.pre 1 1 1 566667.
+#
+
 pre1 = PREParser(sys.argv)
 pre1.doParse()
 print pre1.getParsed()
