@@ -124,6 +124,35 @@ class ParaParser:
         self._parsed = pDlist
 
 
+    #TODO: Document the following 4 methods
+    def getAllXarray(self):
+        xA = zeros(len(self._parsed))
+        for i in range (0, len(self._parsed)):
+            val = self._parsed[i].getCoordx()
+            xA[i] = val
+        return xA
+
+    def getAllYarray(self):
+        yA = zeros(len(self._parsed))
+        for i in range (0, len(self._parsed)):
+            val = self._parsed[i].getCoordy()
+            yA[i] = val
+        return yA
+
+    def getAllZarray(self):
+        zA = zeros(len(self._parsed))
+        for i in range (0, len(self._parsed)):
+            val = self._parsed[i].getCoordz()
+            zA[i] = val
+        return zA
+
+    def getAllMeasarray(self):
+        mA = zeros(len(self._parsed))
+        for i in range (0, len(self._parsed)):
+            val = self._parsed[i].getVal()
+            mA[i] = val
+        return mA
+
 
 class PCSParser(ParaParser):
     def __init__(self, stdin):
@@ -311,11 +340,12 @@ class PREParser(ParaParser):
         self._model        = self._structure[0]
         para_data_in       = open(self._para_data_fn).readlines()
         self._dataset      = para_data_in
-        self._metal_loc    = empty((3))
+        self._metal_loc    = zeros((3))
         self._metal_loc[0] = float(stdin[4])
         self._metal_loc[1] = float(stdin[5])
         self._metal_loc[2] = float(stdin[6])
-        self._c            = float(stdin[7])
+        self._c            = zeros((1))
+        self._c[0]         = float(stdin[7])
 
 
     def getMetalLoc(self):

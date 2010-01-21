@@ -10,7 +10,8 @@ from   ParaUtils import *
 class CalcPara:
 
 
-    def PCS(self, parsed_pcs_data, convention):
+    def PCS(self, ParsedObj, convention):
+        #TODO: Update parsed_pcs_data to ParsedObj as in PRE
         """
         Calculate the PCS for a given set of spins/parameters in a given
         convention
@@ -20,19 +21,19 @@ class CalcPara:
         @type convention:     : string
         """
         if convention == 'ZXZ':
-            rot  = ZXZRot(parsed_pcs_data.getAlpha(), parsed_pcs_data.getBeta(),
-                parsed_pcs_data.getGamma())
+            rot  = ZXZRot(ParsedObj.getAlpha(), ParsedObj.getBeta(),
+                ParsedObj.getGamma())
         elif convention == 'ZYZ':
-            rot  = ZYZRot(parsed_pcs_data.getAlpha(), parsed_pcs_data.getBeta(),
-                parsed_pcs_data.getGamma())
+            rot  = ZYZRot(ParsedObj.getAlpha(), ParsedObj.getBeta(),
+                ParsedObj.getGamma())
         else:
             print "Non-supported convention selected in PCS calculation"
             print "Exiting"
             sys.exit(0)
-        metalPos = parsed_pcs_data.getMetalLoc()
-        Xax    = parsed_pcs_data.getAxialVVU()
-        Xrh  = parsed_pcs_data.getRhombicVVU()
-        data     = parsed_pcs_data.getParsed()
+        metalPos = ParsedObj.getMetalLoc()
+        Xax      = ParsedObj.getAxialVVU()
+        Xrh      = ParsedObj.getRhombicVVU()
+        data     = ParsedObj.getParsed()
         for pObject in range(0, len(data)):
             cur = data[pObject].getCoord()
             X   = cur[0] - metalPos[0]
@@ -48,25 +49,25 @@ class CalcPara:
             data[pObject].setCVal(pcs)
 
 
-    def PRE(self, parsed_pre_data):
+    def PRE(self, ParsedObj):
         """
         Calculate the PREfor a given set of spins/parameters
         @param parsed_pre_data: A container of parsed dataset/structure/params
         @type parsed_pre_data:  ParaParser object
         """
-        metalPos = parsed_pre_data.getMetalLoc()
-        data     = parsed_pre_data.getParsed()
+        metalPos = ParsedObj.getMetalLoc()
+        data     = ParsedObj.getParsed()
         for pObject in range(0, len(data)):
             cur = data[pObject].getCoord()
             r2 = (metalPos[0] - cur[0])**2 + (metalPos[1] -
                 cur[1])**2 + (metalPos[2] - cur[2])**2
             r = math.sqrt(r2)
-            pre = parsed_pre_data.getConstant()/(r**6)
+            pre = ParsedObj.getConstant()/(r**6)
             data[pObject].setCVal(pre)
 
 
-    #FIXME: The RDC method is not finished/working. Must check!
-    def RDC(parsed_rdc_data, convention, B0, temp, Nmgr_type=1):
+    #FIXME: The RDC method is not tested. It is most likely wrong. Must check!
+    def RDC(self, ParsedObj, convention, B0, temp, Nmgr_type=1):
         """
         FIXME
         @param parsed_rdc_data: A container of parsed dataset/structure/params
@@ -81,18 +82,18 @@ class CalcPara:
         @type Nmgr_type=1:......boolean
         """
         if convention == 'ZXZ':
-            rot  = ZXZRot(parsed_rdc_data.getAlpha(), parsed_rdc_data.getBeta(),
-                parsed_rdc_data.getGamma())
+            rot  = ZXZRot(ParsedObj.getAlpha(), ParsedObj.getBeta(),
+                ParsedObj.getGamma())
         elif convention == 'ZYZ':
-            rot  = ZYZRot(parsed_rdc_data.getAlpha(), parsed_rdc_data.getBeta(),
-                parsed_rdc_data.getGamma())
+            rot  = ZYZRot(ParsedObj.getAlpha(), ParsedObj.getBeta(),
+                ParsedObj.getGamma())
         else:
             print "Non-supported convention selected in RDC calculation"
             print "Exiting"
             sys.exit(0)
-        Dax      = parsed_rdc_data.getAxial()
-        Drh      = parsed_rdc_data.getRhombic()
-        data     = parsed_rdc_data.getParsed()
+        Dax      = ParsedObj.getAxial()
+        Drh      = ParsedObj.getRhombic()
+        data     = ParsedObj.getParsed()
         #FIXME: Add this code. Below. Currently set to 0.0
         gH       = 0.0
         gN       = 0.0

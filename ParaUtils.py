@@ -88,6 +88,17 @@ def ToVVU(AxorRh):
     return AxorRh*(1./((12*math.pi))*10000)
 
 
+def FixAngle(angle):
+    """
+     To fix up the angles after optimization as they are not [0:2pi] bound
+     @param angle: An Euler angle determined from the optimization
+     @type angle:  float
+    """
+    fix_range = 0.0
+    if angle < 0:
+       fix_range = 360.0
+    return (angle%360)
+
 
 def lookupMGR(spin_type):
     """

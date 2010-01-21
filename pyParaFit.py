@@ -1,50 +1,64 @@
-from ParaParser import *
-from CalcPara   import *
-from FitPara    import *
+from ParaParser  import *
+from CalcPara    import *
+from FitPara     import *
+from ExplorePara import *
+from ParaUtils   import *
 
-print 80*'-'
-print " pyParaFit.py"
-print 80*'-'
+print
+print
+print """     pyParaFit - fitting paramagnetic observables to theoretical models
+           pyParaFit  Copyright (C) 2010  Mitchell J Stanton-Cook """
+print 79*'-'
+print """pyParaFit comes with ABSOLUTELY NO WARRANTY; for details read LICENCE
+This is free software, and you are welcome to redistribute it
+under certain conditions; read LICENCE for details. """
+print 79*'-'
+print
 
-# Get the data
-# For datasets simplest to pass as arguments
-#in_data = ['pyParaFit.py', 'pcs', 'tests/STRUCTURES/epsilon.pdb',
-#'tests/DATASETS/PCS/PCS_epsilon_CNH.npc','1','1','1', '30','10','90','90','90']
-
-#Build a parser and parse
-#pcs_eps = PCSParser(in_data)
-#pcs_eps.doParse()
-
-# Build a calcer and calc PCS
-#pcs_calcer = CalcPara()
-#pcs_calcer.PCSZYZ(pcs_eps)
 
 ################################################################################
-# EXAMPLE
+# EXAMPLES
 ################################################################################
 
 in_1 = ['pyParaFit.py', 'pcs', 'tests/STRUCTURES/epsilon.pdb',
-'tests/DATASETS/PCS/1.npc', '-5.', '-4.', '7.','-15.0', '15.0',
-'140', '15', '81']
+'tests/DATASETS/PCS/1.npc', '-3.', '-2.', '9.','-15.0', '15.0', '140', '15', '81']
 #in_1 = ['pyParaFit.py', 'pcs', 'tests/STRUCTURES/epsilon.pdb',
 #'tests/DATASETS/PCS/1.npc', '-5.82', '-4.10', '7.30','-16.98', '17.41',
 #'139.09', '14.36', '81.85']
 
-#Build a parser & parse
-pcs_1 = PCSParser(in_1)
-pcs_1.doParse()
-#Build a calcer & calc
+
+#pcs_1 = PCSParser(in_1)
+#pcs_1.doParse()
 #pcs1_calcer = CalcPara()
 #pcs1_calcer.PCS(pcs_1, 'ZYZ')
-#Get the Obs, Calced
-vals = pcs_1.getParsed()
-a,b,c,d,e = 'Atom Type', '   Residue Number', 'Experimental', 'Calculated', 'Deviation'
-print '%s%12s%15s%15s%15s' % (a,b,c,d,e)
-for pObject in range(0, len(vals)):
-    print '%s%20i%20.3f%20.3f%20.3f' % (vals[pObject].getName(), vals[pObject].getId(), vals[pObject].getVal(), vals[pObject].getCVal(), vals[pObject].getVal()-vals[pObject].getCVal())
+#analysis = ExplorePara()
+#analysis.paraDevs(pcs_1)
+#pcs_fit  = FitPara()
+#res = pcs_fit.PCS(pcs_1, 0)
+#print "x,y,z:", res[0], res[1], res[2]
+#print "Ax, Rh", FromVVU(res[3]), FromVVU(res[4])
+#print res[5], res[6], res[7]
+#print "A,B,G",  FixAngle(res[5]), FixAngle(res[6]), FixAngle(res[7])
+##------------
+pre_in = ['pyParaFit.py', 'pre', 'tests/STRUCTURES/2ZTAa_H_only.pdb',
+'tests/DATASETS/PRE/PREdata_intra_contribution.pre', '-6.', '-29.', '2.', '100000000']
+pre_1_m1 = PREParser(pre_in)
+pre_1_m1.doParse()
 
-pcs_fit_1  = FitPara()
-pcs_fit_1.pcs_monomer(pcs_1)
+pre_1_m2 = PREParser(pre_in)
+pre_1_m2.setModel(1)
+pre_1_m2.doParse()
+#pre_1_calcer = CalcPara()
+#pre_1_calcer.PRE(pre_1)
+#analysis = ExplorePara()
+#analysis.paraDevs(pre_1)
+#analysis.plotParaDevs(parsed)
+pre_fit_calcer = FitPara()
+res = pre_fit_calcer.PRE(pre_1_m1, 3, pre_1_m2)
+print "x,y,z,c", res[0], res[1], res[2], res[3]
+
+
+
 
 
 #in_2 = ['pyParaFit.py', 'pcs', 'tests/STRUCTURES/epsilon.pdb',
