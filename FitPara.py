@@ -24,9 +24,9 @@ class FitPara:
             soln,cov,info,mesg,success = leastsq(PCSMonSSErr, p0, args=(meas, x,y,z), full_output=1)
             return soln
 
-
+    #TODO: Optimize me please
     def PRE(self, parsedObj, type_of_fit, parsedObj2="None" ):
-        #TODO: Optimize me please
+        #NOTE: Agrees with PREfit (by fixing c to free optimized value.
         x    = parsedObj.getAllXarray()
         y    = parsedObj.getAllYarray()
         z    = parsedObj.getAllZarray()
@@ -36,17 +36,20 @@ class FitPara:
             p0   = parsedObj.getMetalLoc()
             soln,cov,info,mesg,success = leastsq(PRE1M1SFC, p0, args=(meas, c,x,y,z), full_output=1)
         if type_of_fit == 1:
+            #NOTE: Agrees with PREfit
             met   = parsedObj.getMetalLoc()
             p0 = zeros(4)
             p0[0], p0[1], p0[2], p0[3] = met[0],met[1],met[2], c[0]
             soln,cov,info,mesg,success = leastsq(PRE1M1SOC, p0, args=(meas, x,y,z), full_output=1)
         if type_of_fit == 2:
+            #NOTE: Agrees with PREfit
             x2    = parsedObj2.getAllXarray()
             y2    = parsedObj2.getAllYarray()
             z2    = parsedObj2.getAllZarray()
             p0    = parsedObj2.getMetalLoc()
             soln,cov,info,mesg,success = leastsq(PRE2M1SFC, p0, args=(meas, c,x,y,z,x2,y2,z2), full_output=1)
         if type_of_fit == 3:
+            #NOTE: Agrees with PREfit
             x2    = parsedObj2.getAllXarray()
             y2    = parsedObj2.getAllYarray()
             z2    = parsedObj2.getAllZarray()

@@ -124,7 +124,7 @@ class ParaParser:
         self._parsed = pDlist
 
 
-    #TODO: Document the following 4 methods
+    #TODO: Document the following 6 methods
     def getAllXarray(self):
         xA = zeros(len(self._parsed))
         for i in range (0, len(self._parsed)):
@@ -152,6 +152,21 @@ class ParaParser:
             val = self._parsed[i].getVal()
             mA[i] = val
         return mA
+
+    def addErrorGuassianMeas(self, sigma, seed=100):
+        import random
+        random.seed(seed)
+        for i in range (0, len(self._parsed)):
+            val = self._parsed[i].getVal()
+            self._parsed[i].setVal(random.gauss(y,sigma))
+
+    def addErrorFlatMeas(self, sigma, seed=100):
+        import random
+        random.seed(seed)
+        for i in range (0, len(self._parsed)):
+            val = self._parsed[i].getVal()
+            up, low = val+sigma, val-sigma
+            self._parsed[i].setVal(random.uniform(up,low))
 
 
 class PCSParser(ParaParser):

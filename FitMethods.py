@@ -3,8 +3,8 @@ from ParaUtils import *
 
 """Resual error functions evaluated during minimization"""
 
-#NOTE: Function name read as: PRE (1 M)ODEL (1 C)ENTRE (F)IXED (C)
-def PRE1M1CFC(p0, meas, c, x,y,z):
+#NOTE: Function name read as: PRE (1 M)ODEL (1 S)ITE (F)IXED (C)
+def PRE1M1SFC(p0, meas, c, x,y,z):
     """
      Optimize for a single PRE centre to a single model with the constant in the
      PRE equation known.
@@ -22,7 +22,7 @@ def PRE1M1CFC(p0, meas, c, x,y,z):
     return err
 
 
-#NOTE: Function name read as: PRE(1 M)ODEL(1 C)ENTRE (O)PTIMIZE (C)
+#NOTE: Function name read as: PRE(1 M)ODEL(1 S)ITE (O)PTIMIZE (C)
 def PRE1M1SOC(p0, meas, x,y,z):
     """
      Optimize for a single PRE centre and the constant in the PRE equation to
@@ -30,13 +30,12 @@ def PRE1M1SOC(p0, meas, x,y,z):
      @param p0: A numpy array with estimates for the coordinates of the PRE
          centre and an estimate for the constant in the PRE equations
     """
-    #NOTE: Believe it agrees with PREfit
     xm,ym,zm,c = p0
     r_v1 = sqrt((x-xm)**2 +(y-ym)**2 + (z-zm)**2)
     err = meas - c/r_v1**6
     return err
 
-#NOTE: Function name read as: PRE(2 M)ODELS(1 C)ENTRE (F)IXED (C)
+#NOTE: Function name read as: PRE(2 M)ODELS(1 S)ITE (F)IXED (C)
 def PRE2M1SFC(p0, meas, c, x,y,z, x2,y2,z2):
     """
      Optimize for a single PRE centre to 2 models (dimer) with the constant in
@@ -153,7 +152,6 @@ def PREDimer2SfreecErr(p, y_v, x1,y1,z1, x2,y2,z2):
     return err
 
 
-loguqmstan1
 
 def PCSMonSSErr(p0, meas, x,y,z):
     """

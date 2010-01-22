@@ -41,22 +41,32 @@ in_1 = ['pyParaFit.py', 'pcs', 'tests/STRUCTURES/epsilon.pdb',
 #print "A,B,G",  FixAngle(res[5]), FixAngle(res[6]), FixAngle(res[7])
 ##------------
 pre_in = ['pyParaFit.py', 'pre', 'tests/STRUCTURES/2ZTAa_H_only.pdb',
-'tests/DATASETS/PRE/PREdata_intra_contribution.pre', '-6.', '-29.', '2.', '100000000']
+'tests/DATASETS/PRE/PREdata_intra_contribution.pre', '0', '0', '0', '0']
 pre_1_m1 = PREParser(pre_in)
 pre_1_m1.doParse()
 
 pre_1_m2 = PREParser(pre_in)
 pre_1_m2.setModel(1)
 pre_1_m2.doParse()
-#pre_1_calcer = CalcPara()
-#pre_1_calcer.PRE(pre_1)
-#analysis = ExplorePara()
-#analysis.paraDevs(pre_1)
+
+pre_1_calcer = CalcPara()
+pre_1_calcer.PRE(pre_1_m1)
+
+analysis = ExplorePara()
+analysis.paraSummary(pre_1_m1)
 #analysis.plotParaDevs(parsed)
 pre_fit_calcer = FitPara()
-res = pre_fit_calcer.PRE(pre_1_m1, 3, pre_1_m2)
+#res = pre_fit_calcer.PRE(pre_1_m1, 3, pre_1_m2)
+res = pre_fit_calcer.PRE(pre_1_m1, 1)
 print "x,y,z,c", res[0], res[1], res[2], res[3]
-
+opt_metal = zeros(3)
+opt_metal[0], opt_metal[1], opt_metal[2] = res[0], res[1], res[2]
+opt_c = zeros(1)
+opt_c[0] = res[3]
+pre_1_m1.setMetalLoc(opt_metal)
+pre_1_m1.setConstant(opt_c)
+pre_1_calcer.PRE(pre_1_m1)
+analysis.paraSummary(pre_1_m1)
 
 
 
