@@ -1,6 +1,7 @@
 """Utility methods for paramagnetic observables """
 
 import math
+from     numpy import *
 
 
 def ZXZRot(A, B, G):
@@ -148,4 +149,61 @@ def RDCScal(B0, temp, gH, gN):
     a = -1*(B0**2)*gH*gN*(getConstants(hbar))
     b = ((getConstants(distHN)**3)*getConstants(kboltz)*temp)*(120*math.pi**2)
     return (a/b)*getConstants(vvuSRDC)
+
+
+def FitSummary(soln,cov,info,mesg,success, p0, y_meas, tof):
+    scal = 1.0
+    if tof == 2 or tof == 3:
+        #The effective strength of the X-tensor is 1/2ved in monomer fits
+        scal = 2.0
+    f_type = { \
+        0:'Standard X-tensor optimization', \
+        1:'Standard X-tensor optimization (fixed metal position)', \
+        2:'X-tensor optimization to dimer', \
+        3:'X-tensor optimization to dimer (fixed metal position)'}
+    print 80*'-'
+    print "Fitting Results: ", f_type[tof]
+    print 80*'-'
+    if success==1:
+        print "We have converged to a minima"
+    else:
+        print "We have failed to converge"
+        print "REASON:", mesg
+
+    # calculate final chi square
+    chisq=sum(info["fvec"]*info["fvec"])
+    dof=len(y_meas)-len(p0)
+    # chisq, sqrt(chisq/dof) agrees with gnuplot
+    print "* Converged with chi squared:                 ",chisq
+    print "* Degrees of freedom, dof:                    ", dof
+    print "* RMS of residuals (i.e. sqrt(chisq/dof)):    ", sqrt(chisq/dof)
+    print "* Reduced chisq (i.e. variance of residuals): ", chisq/dof
+    print
+    # uncertainties are calculated as per gnuplot, "fixing" the result
+    # for non unit values of the reduced chisq.
+    # values at min match gnuplot
+    print "Fitted parameters at minimum, with 68% C.I.:"
+    print "%s%7s%11s%13s" % ("Param", "Init", "Final", "Error")
+    #NOTE: The confidence intervals may not be correct due to conversion to VVU etc.
+    if tof == 0 or tof == 2:
+        for i,pmin in enumerate(soln):
+            if   i == 3 or i == 4:
+                #NOTE: The scal factor is dimer specific
+                print "%3i %7s %13.4f   +/- %8f"%(i+1,FromVVU(p0[i]),scal*(FromVVU(pmin)),scal*(FromVVU(sqrt(cov[i,i])*sqrt(chisq/dof))))
+            elif i == 5 or i == 6 or i ==7:
+                print "%3i %7s %13.4f   +/- %8f"%(i+1,FixAngle(p0[i]),FixAngle(pmin),sqrt(cov[i,i])*sqrt(chisq/dof))
+            else:
+                print "%3i %7s %13.4f   +/- %8f"%(i+1,p0[i],pmin,sqrt(cov[i,i])*sqrt(chisq/dof))
+    if tof == 1 or tof == 3:
+        for i,pmin in enumerate(soln):
+            if   i == 0 or i == 1:
+                #NOTE: The scal factor is dimer specific
+                print "%3i %7s %13.4f   +/- %8f"%(i+1,FromVVU(p0[i]),scal*(FromVVU(pmin)),scal*(FromVVU(sqrt(cov[i,i])*sqrt(chisq/dof))))
+            elif i == 2 or i == 3 or i ==4:
+                print "%3i %7s %13.4f   +/- %8f"%(i+1,FixAngle(p0[i]),FixAngle(pmin),sqrt(cov[i,i])*sqrt(chisq/dof))
+            else:
+                print "%3i %7s %13.4f   +/- %8f"%(i+1,p0[i],pmin,sqrt(cov[i,i])*sqrt(chisq/dof))
+    print 80*'-'
+    print
+    return chisq/dof
 

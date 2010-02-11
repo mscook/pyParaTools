@@ -1,17 +1,23 @@
-pyParaFit - fitting paramagnetic observables to theoretical models
-
+pyPara - For exploring paramagnetic observables using theoretical models
 pyParaFit  Copyright (C) 2010  Mitchell J Stanton-Cook
+--------------------------------------------------------------------------------
 
-Author: Mitchell J Stanton-Cook
-	01/10
-        compbio.chemistry.uq.edu.au/~mscook/
-	m.stantoncook@uq.edu.au
-	m.stantoncook@gmail.com
+Author:     Mitchell J Stanton-Cook
+Start Date: 01/10
+Links:      compbio.chemistry.uq.edu.au/~mscook/
+Contact:    m.stantoncook@uq.edu.au or m.stantoncook@gmail.com
 
-pyParaFit  Copyright (C) 2010  Mitchell J Stanton-Cook
-This program comes with ABSOLUTELY NO WARRANTY; for details read LICENCE.txt
+pyParaFit - For exploring paramagnetic observables using theoretical models
+         pyParaFit  Copyright (C) 2010  Mitchell J Stanton-Cook
+
+pyParaFit comes with ABSOLUTELY NO WARRANTY; for details read LICENCE.txt
 This is free software, and you are welcome to redistribute it
-under certain conditions; read LICENCE_CONDITIONS.txt for details.
+under certain conditions; read LICENCE.txt for details.
 
 Requires:
-	* bio.pdb (Biopython project)
+
+    * bio.pdb (from the biopython project)
+    * Numpy
+    * Scipy
+--------------------------------------------------------------------------------
+

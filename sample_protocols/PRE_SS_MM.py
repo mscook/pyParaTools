@@ -71,4 +71,14 @@ pre_1_m2.setConstant(fixed_c)
 res = pre_fitter.PRE(pre_1_m1, 2, pre_1_m2)
 print "Optimization with c fixed to", fixed_c
 print "Determined x,y,z and c", res[0], res[1], res[2]
-
+opt_metal = zeros(3)
+opt_metal[0], opt_metal[1], opt_metal[2] = res[0], res[1], res[2]
+pre_1_m1.setMetalLoc(opt_metal)
+pre_1_m1.setConstant(fixed_c)
+pre_1_m2.setMetalLoc(opt_metal)
+pre_1_m2.setConstant(fixed_c)
+#  Now re-calculate
+pre_calcer = CalcPara()
+pre_calcer.PRE(pre_1_m1)
+pre_calcer.PRE(pre_1_m2)
+analysis.paraSummaryMulti(pre_1_m1, pre_1_m2)

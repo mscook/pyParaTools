@@ -124,7 +124,7 @@ class ParaParser:
         self._parsed = pDlist
 
 
-    #TODO: Document the following 6 methods
+    #TODO: Document the following methods
     def getAllXarray(self):
         xA = zeros(len(self._parsed))
         for i in range (0, len(self._parsed)):
@@ -153,6 +153,7 @@ class ParaParser:
             mA[i] = val
         return mA
 
+
     def addErrorGuassianMeas(self, sigma, seed=100):
         import random
         random.seed(seed)
@@ -167,6 +168,18 @@ class ParaParser:
             val = self._parsed[i].getVal()
             up, low = val+sigma, val-sigma
             self._parsed[i].setVal(random.uniform(up,low))
+
+
+    def pickleParsed(self, outname):
+        import pickle
+        pf = file(outname, 'w' )
+        pickle.dump(self._parsed, pf )
+
+    def unpickleParsed(self, inname):
+        import pickle
+        pf = file(inname, 'r' )
+        pickle.load(self._parsed, pf )
+
 
 
 class PCSParser(ParaParser):
