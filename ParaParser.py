@@ -92,8 +92,8 @@ class ParaParser:
 
     def setModel(self, num):
         """
-        Change the model (effectively the coordinates) associated with the given
-        PDB file and paramagnetic dataset
+        Change the model (effectively the coordinates) associated with the
+        given PDB file and paramagnetic dataset
         @param num: Model number (0->1, 1->2)
         @type num:  int
         """
@@ -116,16 +116,36 @@ class ParaParser:
                 if (c_res == res) and (c_at == at):
                     #NOTE: This is possibly a hack...
                     if self._data_type.strip() == 'pcs':
-                        pDlist.append(PCSData(at, int(res), exp, tol, atom.get_coord()))
+                        pDlist.append(PCSData(at, int(res), exp, tol, \
+                                                        atom.get_coord()))
                     elif self._data_type.strip() == 'pre':
-                        pDlist.append(PREData(at, int(res), exp, tol, atom.get_coord()))
+                        pDlist.append(PREData(at, int(res), exp, tol, \
+                                                        atom.get_coord()))
                     else:
                         print 'Unsupported type...'
         self._parsed = pDlist
 
 
-    #TODO: Document the following methods
+    def writeDataSet(self, fname):
+        """
+        Write the data to file for later use.
+        @param fname: The output filename
+        """
+        #TODO: Check if this method works with RDC.
+        fout = open(fname, 'w')
+        objsL = self.getParsed()
+        for obj in range(0, len(objsL)):
+            out = str(objsL[obj].getId()) +'\t'  + str(objsL[obj].getName()) \
+            +'\t'+str(objsL[obj].getVal()) +'\t' + str(objsL[obj].getTol())
+            fout.write(out+'\n')
+        print "Have written data to "+fname
+
+
     def getAllXarray(self):
+        """
+        Returns all the parsed x coordinates in a single array. Exploited in
+        fitting.
+        """
         xA = zeros(len(self._parsed))
         for i in range (0, len(self._parsed)):
             val = self._parsed[i].getCoordx()
@@ -133,6 +153,10 @@ class ParaParser:
         return xA
 
     def getAllYarray(self):
+        """
+        Returns all the parsed y coordinates in a single array. Exploited in
+        fitting.
+        """
         yA = zeros(len(self._parsed))
         for i in range (0, len(self._parsed)):
             val = self._parsed[i].getCoordy()
@@ -140,6 +164,10 @@ class ParaParser:
         return yA
 
     def getAllZarray(self):
+        """
+        Returns all the parsed x coordinates in a single array. Exploited in
+        fitting.
+        """
         zA = zeros(len(self._parsed))
         for i in range (0, len(self._parsed)):
             val = self._parsed[i].getCoordz()
@@ -147,38 +175,95 @@ class ParaParser:
         return zA
 
     def getAllMeasarray(self):
+        """
+        Returns all the parsed measured experimental data in a single array.
+        Exploited in fitting.
+        """
         mA = zeros(len(self._parsed))
         for i in range (0, len(self._parsed)):
             val = self._parsed[i].getVal()
             mA[i] = val
         return mA
 
+    def getAllTolarray(self):
+        """
+        Returns all the parsed experimental tolerances in a single array.
+        Exploited in fitting.
+        """
+        tolA = zeros(len(self._parsed))
+        for i in range (0, len(self._parsed)):
+            val = self._parsed[i].getTol()
+            tolA[i] = val
+        return tolA
 
-    def addErrorGuassianMeas(self, sigma, seed=100):
+
+    def addErrorGuassianMeas(self, delta=1):
+        """
+        Add random Guassian error to the measured experimental value based on
+        the experimental tolerance.
+        An optional parameter sigma (delta=1) can be used to adjust sigma
+        (defaults to the experimental tolerance)
+        """
         import random
-        random.seed(seed)
         for i in range (0, len(self._parsed)):
             val = self._parsed[i].getVal()
-            self._parsed[i].setVal(random.gauss(y,sigma))
+            tol = self._parsed[i].getTol()
+            print 79*'-'
+            print "WARNING: sigma is by default the exprimental tolerance"
+            print "When using Guassian ~ 32% of the time the sigma will be"
+            print "larger than this tolerance"
+            print 79*'-'
+            sigma = tol*delta
+            self._parsed[i].setVal(random.gauss(val,sigma))
 
-    def addErrorFlatMeas(self, sigma, seed=100):
+    def addErrorFlatMeas(self, delta=0.01):
+        """
+        Add error from a "square" distribution to the measured experimental
+        value based on relative error (does not account for the experimental
+        tolerance.
+        An optional parameter sigma (delta=0.01) can be used to adjust the
+        relative error.
+        """
         import random
-        random.seed(seed)
         for i in range (0, len(self._parsed)):
             val = self._parsed[i].getVal()
+            print 79*'-'
+            print "WARNING: This method does not consider exprimental tolerance"
+            print "It works best for a 'flat' relative error"
+            print 79*'-'
+            sigma = val*delta
             up, low = val+sigma, val-sigma
             self._parsed[i].setVal(random.uniform(up,low))
 
 
     def pickleParsed(self, outname):
+        """
+        Pickle (store the entire parsed datastructure).Mainly useful when
+        parsing large PDB files.
+        @param outname: the filename to store the pickled datastructure
+        @type  outname: string
+        """
         import pickle
         pf = file(outname, 'w' )
         pickle.dump(self._parsed, pf )
 
     def unpickleParsed(self, inname):
+        """
+        Unpickle (retrive the entire parsed datastructure).Mainly useful when
+        parsing large PDB files.
+        @param inname: the filename to retrive the pickled object
+        @type  inname: string
+        """
         import pickle
         pf = file(inname, 'r' )
         pickle.load(self._parsed, pf )
+
+    def setCalcedToObs(self):
+        """
+        To update a calculated value to become an experimental value
+        """
+        for i in range (0, len(self._parsed)):
+            self._parsed[i].setVal(self._parsed[i].getCVal)
 
 
 
@@ -208,6 +293,63 @@ class PCSParser(ParaParser):
         self._Ealpha       = float(stdin[9])
         self._Ebeta        = float(stdin[10])
         self._Egamma       = float(stdin[11])
+
+
+    def add2ndSite(self):
+        #NOTE: No longer nessacary
+        """
+        This is a bit of a hack, but in the case of fitting two paramagnetic
+        centres we can store info on the second site in the object. The
+        following 3 methods (inclusive) deal with this case.
+        Initializes a empty datastore
+        """
+        self._site2 = zeros(8)
+
+    def populate2ndSite(self, xm2,ym2,zm2, ax2,rh2, a2,b2,g2):
+        #NOTE: No longer nessacary
+        """
+        Add X-tensor params to the datastore.
+        """
+        self._site2[0] = xm2
+        self._site2[1] = ym2
+        self._site2[2] = zm2
+        self._site2[3] = ToVVU(ax2)
+        self._site2[4] = ToVVU(rh2)
+        self._site2[5] = a2
+        self._site2[6] = b2
+        self._site2[7] = g2
+
+    def get2ndSite(self):
+        #NOTE: No longer nessacary
+        """
+        Return the X-tensor params from the datastore.
+        """
+        site2_data = zeros(8)
+        site2_data[0] = self._site2[0]
+        site2_data[1] = self._site2[1]
+        site2_data[2] = self._site2[2]
+        site2_data[3] = FromVVU(self._site2[3])
+        site2_data[4] = FromVVU(self._site2[4])
+        site2_data[5] = self._site2[5]
+        site2_data[6] = self._site2[6]
+        site2_data[7] = self._site2[7]
+        return site2_data
+
+
+    def getTensorParams(self):
+        """
+        Return all 8 X-tensor parameters.
+        """
+        Xt = zeros(8)
+        Xt[0] = self._metal_loc[0]
+        Xt[1] = self._metal_loc[1]
+        Xt[2] = self._metal_loc[2]
+        Xt[3] = FromVVU(self._ax)
+        Xt[4] = FromVVU(self._rh)
+        Xt[5] = self._Ealpha
+        Xt[6] = self._Ebeta
+        Xt[7] = self._Egamma
+        return Xt
 
 
     def getMetalLoc(self):
@@ -376,6 +518,46 @@ class PREParser(ParaParser):
         self._c[0]         = float(stdin[7])
 
 
+    def add2ndSite(self):
+        #NOTE: No longer nessacary
+        """
+        This is a bit of a hack, but in the case of fitting two paramagnetic
+        centres we can store info on the second site in the object. The
+        following 3 methods (inclusive) deal with this case.
+        Initializes a empty datastore
+        """
+        self._site2 = zeros(4)
+
+    def populate2ndSite(self, xm2,ym2,zm2, c2):
+        #NOTE: No longer nessacary
+        """
+        Add X-tensor params to the datastore.
+        """
+        self._site2[0] = xm2
+        self._site2[1] = ym2
+        self._site2[2] = zm2
+        self._site2[3] = c2
+
+    def get2ndSite(self):
+        #NOTE: No longer nessacary
+        """
+        Return the PRE params from the datastore.
+        """
+        return self._site2
+
+
+    def getSiteParams(self):
+        """
+        Return all 4 PRE centre parameters
+        """
+        Ps = zeros(4)
+        Ps[0] = self._metal_loc[0]
+        Ps[1] = self._metal_loc[1]
+        Ps[2] = self._metal_loc[2]
+        Ps[3] = self._c
+        return Ps
+
+
     def getMetalLoc(self):
         """
         Return the numpy array containing the metal position
@@ -472,6 +654,55 @@ class RDCParser(ParaParser):
         self._Ealpha       = float(stdin[6])
         self._Ebeta        = float(stdin[7])
         self._Egamma       = float(stdin[8])
+
+
+    def add2ndSite(self):
+        #NOTE: No longer nessacary
+        """
+        This is a bit of a hack, but in the case of fitting two paramagnetic
+        centres we can store info on the second site in the object. The
+        following 3 methods (inclusive) deal with this case.
+        Initializes a empty datastore
+        """
+        self._site2 = zeros(5)
+
+    def populate2ndSite(self, ax2,rh2, a2,b2,g2):
+        #NOTE: No longer nessacary
+        """
+        Add alignment-tensor params to the datastore.
+        """
+        #FIXME: RE: units of the alignment-tensor
+        self._site2[0] = ToVVU(ax2)
+        self._site2[1] = ToVVU(rh2)
+        self._site2[2] = a2
+        self._site2[3] = b2
+        self._site2[4] = g2
+
+    def get2ndSite(self):
+        #NOTE: No longer nessacary
+        """
+        Return the alignment-tensor params from the datastore.
+        """
+        site2_data = zeros(5)
+        site2_data[0] = FromVVU(self._site2[0])
+        site2_data[1] = FromVVU(self._site2[1])
+        site2_data[2] = self._site2[2]
+        site2_data[3] = self._site2[3]
+        site2_data[4] = self._site2[4]
+        return site2_data
+
+
+    def getTensorParams(self):
+        """
+        Return all 5 alignment-tensor parameters.
+        """
+        At = zeros(5)
+        At[3] = FromVVU(self._ax)
+        At[4] = FromVVU(self._rh)
+        At[5] = self._Ealpha
+        At[6] = self._Ebeta
+        At[7] = self._Egamma
+        return At
 
 
     def getAxial(self):

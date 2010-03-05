@@ -10,43 +10,54 @@ from   ParaUtils import *
 class CalcPara:
 
 
-    def PCS(self, ParsedObj, convention):
+    def PCS(self, ParsedObj, convention, ParsedObjL=[], average=0):
         #TODO: Update parsed_pcs_data to ParsedObj as in PRE
         """
         Calculate the PCS for a given set of spins/parameters in a given
         convention
-        @param parsed_pcs_data: A container of parsed dataset/structure/params
-        @type parsed_pcs_data : ParaParser object
+        @param ParsedObj      : A container of parsed dataset/structure/params
+        @type  ParsedObj      : ParaParser object
         @param convention:    : The X-tensor convention (ZXZ or ZYZ)
         @type convention:     : string
+        @param ParsedObjList  : [OPTIONAL] A list of ParaParser objects. If to
+                                calculate the PCS on many ParaParser objects
+        @param average        : [OPTIONAL]. Makes sense for multiple objects
+                                passed. Set the calculated PCS to the average
+                                PCS calculated for the corresponding spin
+                                over each object
         """
-        if convention == 'ZXZ':
-            rot  = ZXZRot(ParsedObj.getAlpha(), ParsedObj.getBeta(),
-                ParsedObj.getGamma())
-        elif convention == 'ZYZ':
-            rot  = ZYZRot(ParsedObj.getAlpha(), ParsedObj.getBeta(),
-                ParsedObj.getGamma())
-        else:
-            print "Non-supported convention selected in PCS calculation"
-            print "Exiting"
-            sys.exit(0)
-        metalPos = ParsedObj.getMetalLoc()
-        Xax      = ParsedObj.getAxialVVU()
-        Xrh      = ParsedObj.getRhombicVVU()
-        data     = ParsedObj.getParsed()
-        for pObject in range(0, len(data)):
-            cur = data[pObject].getCoord()
-            X   = cur[0] - metalPos[0]
-            Y   = cur[1] - metalPos[1]
-            Z   = cur[2] - metalPos[2]
-            x_t = rot[0][0]*X + rot[0][1]*Y + rot[0][2]*Z
-            y_t = rot[1][0]*X + rot[1][1]*Y + rot[1][2]*Z
-            z_t = rot[2][0]*X + rot[2][1]*Y + rot[2][2]*Z
-            r2 = (x_t*x_t)+(y_t*y_t)+(z_t*z_t)
-            r5 = (r2*r2) * math.sqrt(r2)
-            tmp = 1.0/r5
-            pcs = tmp*(Xax * (3.0*z_t*z_t -r2) + Xrh*1.5*(x_t*x_t - y_t*y_t))
-            data[pObject].setCVal(pcs)
+        ParsedObjL.insert(0,ParsedObj)
+        for i in range(0, len(ParsedObjL)):
+            #TODO: Check that this change works (calc multi PCS)
+            if convention == 'ZXZ':
+                rot  = ZXZRot(ParsedObjL[i].getAlpha(), \
+                              ParsedObjL[i].getBeta(), \
+                              ParsedObjL[i].getGamma())
+            elif convention == 'ZYZ':
+                rot  = ZYZRot(ParsedObjL[i].getAlpha(), \
+                              ParsedObjL[i].getBeta(), \
+                              ParsedObjL[i].getGamma())
+            else:
+                print "Non-supported convention selected in PCS calculation"
+                print "Exiting"
+                sys.exit(0)
+            metalPos = ParsedObjL[i].getMetalLoc()
+            Xax      = ParsedObjL[i].getAxialVVU()
+            Xrh      = ParsedObjL[i].getRhombicVVU()
+            data     = ParsedObjL[i].getParsed()
+            for spin in range(0, len(data)):
+                cur = data[spin].getCoord()
+                X   = cur[0] - metalPos[0]
+                Y   = cur[1] - metalPos[1]
+                Z   = cur[2] - metalPos[2]
+                x_t = rot[0][0]*X + rot[0][1]*Y + rot[0][2]*Z
+                y_t = rot[1][0]*X + rot[1][1]*Y + rot[1][2]*Z
+                z_t = rot[2][0]*X + rot[2][1]*Y + rot[2][2]*Z
+                r2 = (x_t*x_t)+(y_t*y_t)+(z_t*z_t)
+                r5 = (r2*r2) * math.sqrt(r2)
+                tmp = 1.0/r5
+                pcs = tmp*(Xax * (3.0*z_t*z_t -r2) + Xrh*1.5*(x_t*x_t - y_t*y_t))
+                data[spin].setCVal(pcs)
 
 
     def PRE(self, ParsedObj):

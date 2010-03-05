@@ -1,44 +1,43 @@
 """Utility methods for paramagnetic observables """
 
 import math
-from     numpy import *
+from   numpy import *
 
 
-def ZXZRot(A, B, G):
-    #FIXME: Rewrite to utilize Numpy arrays
+def ZXZRot(A, B, G, scal=1.0):
     """
      Builds the ZXZ rotation matrix given 3 Euler Angles. See:
          http://mathworld.wolfram.com/EulerAngles.html
-     @param A: The (A)lpha angle
-     @type A : float
-     @param B: The (B)eta angle
-     @type B : float
-     @param G: The (G)amma angle
-     @type G : float
+     @param A  : The (A)lpha angle
+     @type A   : float
+     @param B  : The (B)eta angle
+     @type B   : float
+     @param G  : The (G)amma angle
+     @type G   : float
+     @param val: (OPTIONAL) Such that we can scale the rotation matix
+                  is for the X-tensor frame determination
+     @type val : float
     """
-    rot = [None]*3
-    for i in range(3):
-        rot[i] = [None] * 3
+    rot = zeros((3,3))
     ca = math.cos(math.radians(A))
     cb = math.cos(math.radians(B))
     cg = math.cos(math.radians(G))
     sa = math.sin(math.radians(A))
     sb = math.sin(math.radians(B))
     sg = math.sin(math.radians(G))
-    rot[0][0] = ( cg * ca) - (cb * sa * sg)
-    rot[0][1] = ( cg * sa) + (cb * ca * sg)
-    rot[0][2] = ( sg * sb)
-    rot[1][0] = (-sg * ca) - (cb * sa * cg)
-    rot[1][1] = (-sg * sa) + (cb * ca * cg)
-    rot[1][2] = ( cg * sb)
-    rot[2][0] = ( sb * sa)
-    rot[2][1] = (-sb * ca)
-    rot[2][2] =   cb
+    rot[0][0] = (( cg * ca) - (cb * sa * sg))*scal
+    rot[0][1] = (( cg * sa) + (cb * ca * sg))*scal
+    rot[0][2] = (( sg * sb))*scal
+    rot[1][0] = ((-sg * ca) - (cb * sa * cg))*scal
+    rot[1][1] = ((-sg * sa) + (cb * ca * cg))*scal
+    rot[1][2] = (( cg * sb))*scal
+    rot[2][0] = (( sb * sa))*scal
+    rot[2][1] = ((-sb * ca))*scal
+    rot[2][2] =   (cb)*scal
     return rot
 
 
-def ZYZRot(A, B, G):
-    #FIXME: Rewrite to utilize Numpy arrays
+def ZYZRot(A, B, G, scal=1.0):
     """
     .Builds the ZYZ rotation matrix given 3 Euler Angles. See:
          http://mathworld.wolfram.com/EulerAngles.html
@@ -48,27 +47,89 @@ def ZYZRot(A, B, G):
      @type B : float
      @param G: The (G)amma angle
      @type G : float
+     @param val: (OPTIONAL) Such that we can scale the rotation matix
+                  is for the X-tensor frame determination
+     @type val : float
     """
-    rot = [None]*3
-    for i in range(3):
-        rot[i] = [None] * 3
+    rot = zeros((3,3))
     ca = math.cos(math.radians(A))
     cb = math.cos(math.radians(B))
     cg = math.cos(math.radians(G))
     sa = math.sin(math.radians(A))
     sb = math.sin(math.radians(B))
     sg = math.sin(math.radians(G))
-    rot[0][0] = (-sg * sa) + (cb * ca * cg)
-    rot[0][1] = ( sg * ca) + (cb * sa * cg)
-    rot[0][2] = ( -cg * sb)
-    rot[1][0] = (-cg * sa) - (cb * ca * sg)
-    rot[1][1] = (cg * ca) - (cb * sa * sg)
-    rot[1][2] = ( sg * sb)
-    rot[2][0] = ( sb * ca)
-    rot[2][1] = (sb * sa)
-    rot[2][2] =   cb
+    rot[0][0] = ((-sg * sa) + (cb * ca * cg))*scal
+    rot[0][1] = (( sg * ca) + (cb * sa * cg))*scal
+    rot[0][2] = (( -cg * sb))*scal
+    rot[1][0] = ((-cg * sa) - (cb * ca * sg))*scal
+    rot[1][1] = ((cg * ca) - (cb * sa * sg))*scal
+    rot[1][2] = (( sg * sb))*scal
+    rot[2][0] = (( sb * ca))*scal
+    rot[2][1] = ((sb * sa))*scal
+    rot[2][2] =  (cb)*scal
     return rot
 
+def RotX90():
+    """
+    .Builds the rotation matrix for 90 deg rotation about X
+     1, 0, 0,  0, 0, 1,  0, -1, 0
+    """
+    rot = zeros((3,3))
+    rot[0][0] =  1.0
+    rot[1][2] =  1.0
+    rot[2][1] = -1.0
+    return rot
+
+def RotY90():
+    """
+    .Builds the rotation matrix for 90 deg rotation about Y
+     0, 0, -1,  0, 1, 0,  1, 0, 0
+    """
+    rot = zeros((3,3))
+    rot[0][2] = -1.0
+    rot[1][1] =  1.0
+    rot[2][0] =  1.0
+    return rot
+
+def RotZ90():
+    """
+    .Builds the rotation matrix for 90 deg rotation about Z
+     0, 1, 0,  -1, 0, 0,  0, 0, 1
+    """
+    rot = zeros((3,3))
+    rot[0][1] =  1.0
+    rot[1][0] = -1.0
+    rot[2][2] =  1.0
+    return rot
+
+
+def correctRofAngles(cosv, sinv):
+    #TODO: Check that this is correct
+    if (cosv <= math.pi/2.0):
+        if (sinv < 0.0):
+            sinv = sinv + 2*math.pi
+            return sinv
+        else:
+            return sinv
+    else:
+        if(sinv > 0.0):
+            return cosv
+        else:
+            return -1*(cosv) +2*math.pi
+
+
+def ABGFromRotMatrixZYZ(rotMat):
+    #TODO: Check these are correct!
+    #TODO: Add the corresponding ZXZ method
+    b_c = math.acos(rotMat[2,2])
+    a_c = math.acos(rotMat[2,0]/math.sin(b_c))
+    g_c = math.acos(-1*rotMat[0,2]/math.sin(b_c))
+    a_s = math.asin(rotMat[2,1]/math.sin(b_c))
+    g_s = math.asin(rotMat[1,2]/math.sin(b_c))
+    aE = correctRofAngles(a_c, a_s)
+    bE = b_c
+    gE = correctRofAngles(g_c, g_s)
+    return aE, bE, gE
 
 
 def FromVVU(AxorRh):
@@ -95,10 +156,19 @@ def FixAngle(angle):
      @param angle: An Euler angle determined from the optimization
      @type angle:  float
     """
-    fix_range = 0.0
-    if angle < 0:
-       fix_range = 360.0
-    return (angle%360)
+    while angle > 0.0:
+        angle = angle - 360.0
+    while angle < 0.0:
+        angle = angle + 360.0
+    return angle
+
+def SwapVals(val1, val2):
+    temp = 0.0
+    temp = val1
+    val1 = val2
+    val2 = temp
+    return val1, val2
+
 
 
 def lookupMGR(spin_type):
@@ -133,9 +203,9 @@ def getConstants(c_type):
         return 1.05457148e-34
     elif c_type == 'kboltz':
         return 1.3806503e-23
-    elif c_type == distNH:
+    elif c_type == 'distNH':
         return 1.03e-10
-    elif c_type == vvuSRDC:
+    elif c_type == 'vvuSRDC':
         return 3.76991118431e-35
     else:
         return 0.0
@@ -160,7 +230,10 @@ def FitSummary(soln,cov,info,mesg,success, p0, y_meas, tof):
         0:'Standard X-tensor optimization', \
         1:'Standard X-tensor optimization (fixed metal position)', \
         2:'X-tensor optimization to dimer', \
-        3:'X-tensor optimization to dimer (fixed metal position)'}
+        3:'X-tensor optimization to dimer (fixed metal position)', \
+        4:'2 X-tensors to a monomer', \
+        5:'2 X-tensors (1 fixed metal site)  to a monomer', \
+        6:'2 X-tensors (2 fixed metal sites) to a monomer' }
     print 80*'-'
     print "Fitting Results: ", f_type[tof]
     print 80*'-'
@@ -185,24 +258,34 @@ def FitSummary(soln,cov,info,mesg,success, p0, y_meas, tof):
     print "Fitted parameters at minimum, with 68% C.I.:"
     print "%s%7s%11s%13s" % ("Param", "Init", "Final", "Error")
     #NOTE: The confidence intervals may not be correct due to conversion to VVU etc.
-    if tof == 0 or tof == 2:
+    if tof == 0 or tof == 2 or tof ==4:
         for i,pmin in enumerate(soln):
-            if   i == 3 or i == 4:
+            if   i == 3 or i == 4 or i == 11 or i == 12:
                 #NOTE: The scal factor is dimer specific
                 print "%3i %7s %13.4f   +/- %8f"%(i+1,FromVVU(p0[i]),scal*(FromVVU(pmin)),scal*(FromVVU(sqrt(cov[i,i])*sqrt(chisq/dof))))
-            elif i == 5 or i == 6 or i ==7:
+            elif i == 5 or i == 6 or i ==7 or i == 13 or i == 14 or i == 15:
                 print "%3i %7s %13.4f   +/- %8f"%(i+1,FixAngle(p0[i]),FixAngle(pmin),sqrt(cov[i,i])*sqrt(chisq/dof))
             else:
                 print "%3i %7s %13.4f   +/- %8f"%(i+1,p0[i],pmin,sqrt(cov[i,i])*sqrt(chisq/dof))
-    if tof == 1 or tof == 3:
+    if tof == 1 or tof == 3 or tof == 5:
         for i,pmin in enumerate(soln):
-            if   i == 0 or i == 1:
+            if   i == 0 or i == 1 or i == 8 or i == 9:
                 #NOTE: The scal factor is dimer specific
                 print "%3i %7s %13.4f   +/- %8f"%(i+1,FromVVU(p0[i]),scal*(FromVVU(pmin)),scal*(FromVVU(sqrt(cov[i,i])*sqrt(chisq/dof))))
-            elif i == 2 or i == 3 or i ==4:
+            elif i == 2 or i == 3 or i ==4 or i == 10 or i == 11 or i == 12:
                 print "%3i %7s %13.4f   +/- %8f"%(i+1,FixAngle(p0[i]),FixAngle(pmin),sqrt(cov[i,i])*sqrt(chisq/dof))
             else:
                 print "%3i %7s %13.4f   +/- %8f"%(i+1,p0[i],pmin,sqrt(cov[i,i])*sqrt(chisq/dof))
+    if tof == 6:
+         for i,pmin in enumerate(soln):
+            if   i == 0 or i == 1 or i == 5 or i == 6:
+                #NOTE: The scal factor is dimer specific
+                print "%3i %7s %13.4f   +/- %8f"%(i+1,FromVVU(p0[i]),scal*(FromVVU(pmin)),scal*(FromVVU(sqrt(cov[i,i])*sqrt(chisq/dof))))
+            elif i == 2 or i == 3 or i == 4 or i == 7 or i == 8 or i == 9:
+                print "%3i %7s %13.4f   +/- %8f"%(i+1,FixAngle(p0[i]),FixAngle(pmin),sqrt(cov[i,i])*sqrt(chisq/dof))
+            else:
+                print "%3i %7s %13.4f   +/- %8f"%(i+1,p0[i],pmin,sqrt(cov[i,i])*sqrt(chisq/dof))
+
     print 80*'-'
     print
     return chisq/dof

@@ -22,12 +22,11 @@ class ExplorePara:
             exp_v  = data[pObject].getVal()
             cal_v  = data[pObject].getCVal()
             dev    = data[pObject].getVal()-data[pObject].getCVal()
-	    perDev = abs(dev)/exp_v	
+            perDev = abs(dev)/abs(exp_v)
             print '%s%6i%12.3f%12.3f%12.3f%12.3f' % (aname,rnum,exp_v,cal_v,dev, perDev)
         print 80*'-'
 
     def paraSummaryMulti(self ,ParsedObj1, ParsedObj2):
-    #NOTE: Check ie. -ve %'s and > 1
         data1     = ParsedObj1.getParsed()
         data2     = ParsedObj2.getParsed()
         print
@@ -37,6 +36,8 @@ class ExplorePara:
         print out1+out2
         print 80*'-'
         for pObject in range(0, len(data1)):
+            #NOTE: To avoid div/0 errors
+            delta  = 10e-33
             aname = data1[pObject].getName()
             rnum  = data1[pObject].getId()
             exp_v = data1[pObject].getVal()
@@ -44,7 +45,10 @@ class ExplorePara:
             cal_2 = data2[pObject].getCVal()
             cal_t = data1[pObject].getCVal()+data2[pObject].getCVal()
             dev   = cal_t - exp_v
-            pc_s2 = cal_2/cal_t
+            #NOTE: I have modified this method due to negatives.
+            #CHANGED: Justify the use of abs here. It should not change PRE
+            a_cal_t =abs(data1[pObject].getCVal())+abs(data2[pObject].getCVal())
+            pc_s2   =abs(cal_2)/(a_cal_t+delta)
             print '%s%6i%12.3f%12.3f%12.3f%12.3f%12.3f%12.3f' % \
             (aname, rnum, exp_v, cal_1, cal_2, cal_t, dev, pc_s2)
         print 80*'-'
@@ -111,6 +115,7 @@ class ExplorePara:
 
 
     def describeData(self, ParsedObj):
+        #FIXME: Add some more descriptive statistics
         exp = ParsedObj.getAllMeasarray()
         print mean(exp)
         print var(exp)
@@ -175,6 +180,12 @@ class ExplorePara:
         mp[0], mp[1], mp[2] =  mpx,  mpy, mpz
         m1m2   = zeros(3)
         m1m2   = m1-m2
+        tmp1 = array([0,0,1])
+        tmp2 = array([0,1,0])
+        tmp3 = array([1,0,0])
+        print cross(mp, tmp1)
+        print cross(mp, tmp2)
+        print cross(mp, tmp3)
         # Calculate distances
         dm1_s1 = math.sqrt((m1[0]-sk[0])**2 +(m1[1]-sk[1])**2 +(m1[2]-sk[2])**2)
         dm2_s1 = math.sqrt((m2[0]-sk[0])**2 +(m2[1]-sk[1])**2 +(m2[2]-sk[2])**2)
@@ -194,4 +205,41 @@ class ExplorePara:
             os.system("cp "+ParsedObj1.getPDBFn()+" .")
         else:
             print "Failed. Retry with different initial conditions"
+
+
+    def getTensorFrameZYZ(self, ParsedObj):
+        """ Prints the tensor axes (4 equivalent) in the PDB format. This
+            is of use for visualising the the tensor and also in building
+            complexes
+        """
+        #TODO: Make this method more general such that it can do ZXZ aswell.
+        #NOTE: Will become getTensorFrame(self, ParsedObj, convention)
+        from ParaUtils import ZYZRot
+        ax_off = 1.0
+        ax_s = zeros((4,3))
+        ax_s[0][0], ax_s[0][1], ax_s[0][2] =  1.0,  1.0,  1.0
+        ax_s[1][0], ax_s[1][1], ax_s[1][2] =  1.0, -1.0, -1.0
+        ax_s[2][0], ax_s[2][1], ax_s[2][2] = -1.0,  1.0, -1.0
+        ax_s[3][0], ax_s[3][1], ax_s[3][2] = -1.0, -1.0,  1.0
+        m = ParsedObj.getMetalLoc()
+        x1,y1,z1 = m[0], m[1], m[2]
+        rot = ZYZRot(ParsedObj.getAlpha(),ParsedObj.getBeta(), \
+                                          ParsedObj.getGamma())
+        a, aid, at, rt, mod, resn = "ATOM", 9000, ["OO","OX","OY","OZ"], \
+                                        "TSR", " ", 900
+        for i in range(0,4):
+            x2,y2,z2=m[0]+ax_s[i][0]*rot[0][0], m[1]+ax_s[i][0]*rot[0][1], \
+                                    m[2]+ax_s[i][0]*rot[0][2]
+            x3,y3,z3=m[0]+ax_s[i][1]*rot[1][0], m[1]+ax_s[i][1]*rot[1][1], \
+                                    m[2]+ax_s[i][1]*rot[1][2]
+            x4,y4,z4=m[0]+ax_s[i][2]*rot[2][0], m[1]+ax_s[i][2]*rot[2][1], \
+                                    m[2]+ax_s[i][2]*rot[2][2]
+            print ('%s%7i%4s%5s%2s%4i%12.3f%8.3f%8.3f' \
+            %(a,aid,at[0],rt,mod,resn+i, x1, y1, z1))
+            print ('%s%7i%4s%5s%2s%4i%12.3f%8.3f%8.3f' \
+            %(a,aid+1,at[1],rt,mod,resn+i, x2, y2, z2))
+            print ('%s%7i%4s%5s%2s%4i%12.3f%8.3f%8.3f' \
+            %(a,aid+2,at[2],rt,mod,resn+i, x3, y3, z3))
+            print ('%s%7i%4s%5s%2s%4i%12.3f%8.3f%8.3f' \
+            %(a,aid+3,at[3],rt,mod,resn+i, x4, y4, z4))
 

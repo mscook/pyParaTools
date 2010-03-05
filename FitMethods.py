@@ -62,7 +62,8 @@ def PRE2M1SOC(p0, meas, x,y,z, x2,y2,z2):
     return err
 
 #NOTE: Function name read as: PRE(1M)ODELS(2S)SITE(F)IXED(C)
-def PRE1M2SFC(p0, meas, c, x,y,z):
+def PRE1M2SFC(p0, meas, c, x,y,z, tol=None):
+    #NOTE: Change above
     """
      Optimize for two PRE centres (dimer case) to a single model with the
      constant in the PRE equation known.
@@ -70,10 +71,21 @@ def PRE1M2SFC(p0, meas, c, x,y,z):
         the two PRE centres in the form [<x,y,z>_1  <x,y,z>_2]
     """
     xm, ym, zm, xm2,ym2,zm2 = p0
+    print "This method has been modified."
+    print "Inspect code before using"
+    #NOTE: Modified now so that optimize by sd
+    #sd_pre   = math.sqrt(var(meas))
     r_v1 = sqrt((x -xm )**2 +(y-ym )**2 + (z-zm )**2)
     r_v2 = sqrt((x -xm2)**2 +(y-ym2)**2 + (z-zm2)**2)
     err = meas - (c/r_v1**6 + c/r_v2**6)
-    return err
+    print tol
+    if tol == None:
+        return err
+    else:
+        for item in range(0, len(err)):
+            if abs(err[item]) - tol[item] <= 0.0:
+                err[item] = 0.0
+        return err
 
 #NOTE: Function name read as: PRE(1M)ODELS(2S)SITE(O)PTIMIZE(C)
 def PRE1M2SOC(p0, meas, x,y,z):
@@ -83,6 +95,7 @@ def PRE1M2SOC(p0, meas, x,y,z):
      @param p0:   A numpy array with estimates for the coordinates of each of
         the two PRE centres in the form [<x,y,z>_1  <x,y,z>_2]
     """
+    #TODO: Should c be the same at both sites?
     xm, ym, zm, xm2,ym2,zm2, c = p0
     r_v1 = sqrt((x- xm)**2 +(y- ym)**2 + (z- zm)**2)
     r_v2 = sqrt((x-xm2)**2 +(y-ym2)**2 + (z-zm2)**2)
@@ -193,29 +206,18 @@ def PCS2M1SFM(p0, meas, xm,ym,zm, x,y,z, x2,y2,z2):
     err = meas - (pcs1 + pcs2)
     return err
 
-
-
-
-def PCSMon2SErr(p, y_v, x1,y1, z1):
+#NOTE: Function name read as: PCS(1M)ODELS(2S)SITE
+def PCS1M2S(p0, meas, x,y,z):
     """
-     FIXME
-     @param p:
-     @type p:
-     @param y_v:
-     @type y_v:
-     @param x1:
-     @type x1:
-     @param y1:
-     @type y1:
-     @param z1:
-     @type z1:
+     Optimize for 2 X-tensor's given a single model
+     @param p0: A list of initial estimates for the 16 unknown X-tensor params
     """
-    xm1, ym1, zm1, xm2, ym2, zm2, ax1, rh1, ax2, rh2, a1, b1, g1, a2, b2, g2 = p
+    xm1,ym1,zm1, ax1,rh1, a1,b1,g1,xm2,ym2,zm2, ax2,rh2, a2,b2,g2 = p0
     zyz_rot1  = ZYZRot(a1, b1, g1)
     zyz_rot2  = ZYZRot(a2, b2, g2)
-    X1, X2   = (x1 - xm1), (x1 - xm2)
-    Y1, Y2   = (y1 - ym1), (y1 - ym2)
-    Z1, Z2   = (z1 - zm1), (z1 - zm2)
+    X1, X2   = (x - xm1), (x - xm2)
+    Y1, Y2   = (y - ym1), (y - ym2)
+    Z1, Z2   = (z - zm1), (z - zm2)
     x_t1 = zyz_rot1[0][0]*X1 + zyz_rot1[0][1]*Y1 + zyz_rot1[0][2]*Z1
     y_t1 = zyz_rot1[1][0]*X1 + zyz_rot1[1][1]*Y1 + zyz_rot1[1][2]*Z1
     z_t1 = zyz_rot1[2][0]*X1 + zyz_rot1[2][1]*Y1 + zyz_rot1[2][2]*Z1
@@ -230,68 +232,94 @@ def PCSMon2SErr(p, y_v, x1,y1, z1):
     tmp_2 = 1.0/r5_2
     PCS_1 = (tmp_1*(ax1 *(3.0*z_t1*z_t1 -r2_1)+ rh1*1.5*(x_t1*x_t1- y_t1*y_t1)))
     PCS_2 = (tmp_2*(ax2 *(3.0*z_t2*z_t2 -r2_2)+ rh2*1.5*(x_t2*x_t2- y_t2*y_t2)))
-    err = y_v - (PCS_1 + PCS_2)
+    err = meas - (PCS_1 + PCS_2)
     return err
 
-def PCSPREMon2SFreeCErr(p, y_v_pcs, y_v_pre, x1 ,y1, z1, wt_pcs, wt_pre):
+#NOTE: Function name read as: PCS(1M)ODELS(2S)SITE(F)IXED(M)ETAL(X1)
+def PCS1M2SFMX1(p0, meas, xm,ym,zm, x,y,z):
     """
-     FIXME
-     @param p:
-     @type p:
-     @param y_v_pcs:
-     @type y_v_pcs:
-     @param y_v_pre:
-     @type y_v_pre:
-     @param x1:
-     @type x1:
-     @param y1:
-     @type y1:
-     @param z1:
-     @type z1:
-     @param wt_pcs:
-     @type wt_pcs:
-     @param wt_pre:
-     @type wt_pre:
+     Optimize for 2 X-tensor's given a single model with fixed metal position
+     @param p0: A list of initial estimates for the 13 unknown X-tensor params
     """
-    xm1,ym1,zm1, xm2,ym2,zm2, ax1,rh1, ax2,rh2, a1,b1,g1, a2,b2,g2, c = p
-    r_v1     = sqrt((x1-xm1)**2 +(y1-ym1)**2 + (z1-zm1)**2)
-    r_v2     = sqrt((x1-xm2)**2 +(y1-ym2)**2 + (z1-zm2)**2)
-    zyz_rot1 = ZYZRot(a1, b1, g1)
-    zyz_rot2 = ZYZRot(a2, b2, g2)
-    X1, X2   = (x1 - xm1), (x1 - xm2)
-    Y1, Y2   = (y1 - ym1), (y1 - ym2)
-    Z1, Z2   = (z1 - zm1), (z1 - zm2)
-    x_t1     = zyz_rot1[0][0]*X1 + zyz_rot1[0][1]*Y1 + zyz_rot1[0][2]*Z1
-    y_t1     = zyz_rot1[1][0]*X1 + zyz_rot1[1][1]*Y1 + zyz_rot1[1][2]*Z1
-    z_t1     = zyz_rot1[2][0]*X1 + zyz_rot1[2][1]*Y1 + zyz_rot1[2][2]*Z1
-    x_t2     = zyz_rot2[0][0]*X2 + zyz_rot2[0][1]*Y2 + zyz_rot2[0][2]*Z2
-    y_t2     = zyz_rot2[1][0]*X2 + zyz_rot2[1][1]*Y2 + zyz_rot2[1][2]*Z2
-    z_t2     = zyz_rot2[2][0]*X2 + zyz_rot2[2][1]*Y2 + zyz_rot2[2][2]*Z2
-    r2_1     = (x_t1*x_t1)+(y_t1*y_t1)+(z_t1*z_t1)
-    r2_2     = (x_t2*x_t2)+(y_t2*y_t2)+(z_t2*z_t2)
-    r5_1     = (r2_1*r2_1) * sqrt(r2_1)
-    r5_2     = (r2_2*r2_2) * sqrt(r2_2)
-    tmp_1    = 1.0/r5_1
-    tmp_2    = 1.0/r5_2
-    PCS_1    = (tmp_1*(ax1*(3.0*z_t1*z_t1-r2_1)+rh1*1.5*(x_t1*x_t1-y_t1*y_t1)))
-    PCS_2    = (tmp_2*(ax2*(3.0*z_t2*z_t2-r2_2)+rh2*1.5*(x_t2*x_t2-y_t2*y_t2)))
-    err_pcs  = y_v_pcs - (PCS_1 + PCS_2)
-    err_pre  = y_v_pre - (c/r_v1**6 + c/r_v2**6)
-    err      = wt_pcs*(err_pcs) + wt_pre*(err_pre)
+    ax1,rh1, a1,b1,g1,xm2,ym2,zm2, ax2,rh2, a2,b2,g2 = p0
+    zyz_rot1  = ZYZRot(a1, b1, g1)
+    zyz_rot2  = ZYZRot(a2, b2, g2)
+    X1, X2   = (x - xm), (x - xm2)
+    Y1, Y2   = (y - ym), (y - ym2)
+    Z1, Z2   = (z - zm), (z - zm2)
+    x_t1 = zyz_rot1[0][0]*X1 + zyz_rot1[0][1]*Y1 + zyz_rot1[0][2]*Z1
+    y_t1 = zyz_rot1[1][0]*X1 + zyz_rot1[1][1]*Y1 + zyz_rot1[1][2]*Z1
+    z_t1 = zyz_rot1[2][0]*X1 + zyz_rot1[2][1]*Y1 + zyz_rot1[2][2]*Z1
+    x_t2 = zyz_rot2[0][0]*X2 + zyz_rot2[0][1]*Y2 + zyz_rot2[0][2]*Z2
+    y_t2 = zyz_rot2[1][0]*X2 + zyz_rot2[1][1]*Y2 + zyz_rot2[1][2]*Z2
+    z_t2 = zyz_rot2[2][0]*X2 + zyz_rot2[2][1]*Y2 + zyz_rot2[2][2]*Z2
+    r2_1 = (x_t1*x_t1)+(y_t1*y_t1)+(z_t1*z_t1)
+    r2_2 = (x_t2*x_t2)+(y_t2*y_t2)+(z_t2*z_t2)
+    r5_1 = (r2_1*r2_1) * sqrt(r2_1)
+    r5_2 = (r2_2*r2_2) * sqrt(r2_2)
+    tmp_1 = 1.0/r5_1
+    tmp_2 = 1.0/r5_2
+    PCS_1 = (tmp_1*(ax1 *(3.0*z_t1*z_t1 -r2_1)+ rh1*1.5*(x_t1*x_t1- y_t1*y_t1)))
+    PCS_2 = (tmp_2*(ax2 *(3.0*z_t2*z_t2 -r2_2)+ rh2*1.5*(x_t2*x_t2- y_t2*y_t2)))
+    err = meas - (PCS_1 + PCS_2)
     return err
 
-def PCSPRE1M2SFC(p0, meas_pcs, meas_pre, x1 ,y1, z1, c, wt_pcs, wt_pre):
+#NOTE: Function name read as: PCS(1M)ODELS(2S)SITE(F)IXED(M)ETAL(X2)
+def PCS1M2SFMX2(p0, meas, xm1,ym1,zm1, xm2,ym2,zm2, x,y,z):
     """
-     Optimize for two centres using both PCS and PRE data simultaneously
+     Optimize for 2 X-tensor's given a single model with 2 fixed metal positions
+     @param p0: A list of initial estimates for the 10 unknown X-tensor params
     """
-    xm1,ym1,zm1, xm2,ym2,zm2, ax1,rh1, ax2,rh2, a1,b1,g1, a2,b2,g2 = p0
-    r_v1     = sqrt((x1-xm1)**2 +(y1-ym1)**2 + (z1-zm1)**2)
-    r_v2     = sqrt((x1-xm2)**2 +(y1-ym2)**2 + (z1-zm2)**2)
+    ax1,rh1, a1,b1,g1, ax2,rh2, a2,b2,g2 = p0
+    zyz_rot1  = ZYZRot(a1, b1, g1)
+    zyz_rot2  = ZYZRot(a2, b2, g2)
+    X1, X2   = (x - xm1), (x - xm2)
+    Y1, Y2   = (y - ym1), (y - ym2)
+    Z1, Z2   = (z - zm1), (z - zm2)
+    x_t1 = zyz_rot1[0][0]*X1 + zyz_rot1[0][1]*Y1 + zyz_rot1[0][2]*Z1
+    y_t1 = zyz_rot1[1][0]*X1 + zyz_rot1[1][1]*Y1 + zyz_rot1[1][2]*Z1
+    z_t1 = zyz_rot1[2][0]*X1 + zyz_rot1[2][1]*Y1 + zyz_rot1[2][2]*Z1
+    x_t2 = zyz_rot2[0][0]*X2 + zyz_rot2[0][1]*Y2 + zyz_rot2[0][2]*Z2
+    y_t2 = zyz_rot2[1][0]*X2 + zyz_rot2[1][1]*Y2 + zyz_rot2[1][2]*Z2
+    z_t2 = zyz_rot2[2][0]*X2 + zyz_rot2[2][1]*Y2 + zyz_rot2[2][2]*Z2
+    r2_1 = (x_t1*x_t1)+(y_t1*y_t1)+(z_t1*z_t1)
+    r2_2 = (x_t2*x_t2)+(y_t2*y_t2)+(z_t2*z_t2)
+    r5_1 = (r2_1*r2_1) * sqrt(r2_1)
+    r5_2 = (r2_2*r2_2) * sqrt(r2_2)
+    tmp_1 = 1.0/r5_1
+    tmp_2 = 1.0/r5_2
+    PCS_1 = (tmp_1*(ax1 *(3.0*z_t1*z_t1 -r2_1)+ rh1*1.5*(x_t1*x_t1- y_t1*y_t1)))
+    PCS_2 = (tmp_2*(ax2 *(3.0*z_t2*z_t2 -r2_2)+ rh2*1.5*(x_t2*x_t2- y_t2*y_t2)))
+    err = meas - (PCS_1 + PCS_2)
+    return err
+
+
+
+#NOTE: Function name read as: PCSPRE(1M)ODEL(2S)SITE(O)PTMIZE(C)
+def PCSPRE1M2SOC(p0, meas_pcs, meas_pre, x_pcs ,y_pcs, z_pcs, \
+                 x_pre ,y_pre, z_pre, wt_pcs, wt_pre):
+    """
+     Optimize two X-tensors and two PRE centres to two common sites
+     @param p0: List containing initial guesses for (17 unknowns):
+          metal site 1 <x,y,z> , Xaxial and Xrhomic at site 1, Euler angles
+          <A,B,G> at site 1 AND metal site 2 <x,y,z> , Xaxial and Xrhomic at
+          site 2, Euler angles <A,B,G> at site 2 and the PRE constant c
+     @param meas_pcs: The numpy array of measused PCS
+     @param meas_pre: The numpy array of measured PRE
+     @param x: The numpy array of x coordinates of associated exp vals
+     @param y: The numpy array of y coordinates of associated exp vals
+     @param z: The numpy array of z coordinates of associated exp vals
+     @param wt_pcs: [OPTIONAL] The weight of the PCS terms in optimization
+     @param wt_pre: [OPTIONAL] The weight of the PRE terms in optimization
+    """
+    xm1,ym1,zm1, ax1,rh1, a1,b1,g1,xm2,ym2,zm2, ax2,rh2, a2,b2,g2, c = p0
+    r_v1     = sqrt((x_pre-xm1)**2 +(y_pre-ym1)**2 + (z_pre-zm1)**2)
+    r_v2     = sqrt((x_pre-xm2)**2 +(y_pre-ym2)**2 + (z_pre-zm2)**2)
     zyz_rot1 = ZYZRot(a1, b1, g1)
     zyz_rot2 = ZYZRot(a2, b2, g2)
-    X1, X2   = (x1 - xm1), (x1 - xm2)
-    Y1, Y2   = (y1 - ym1), (y1 - ym2)
-    Z1, Z2   = (z1 - zm1), (z1 - zm2)
+    X1, X2   = (x_pcs - xm1), (x_pcs - xm2)
+    Y1, Y2   = (y_pcs - ym1), (y_pcs - ym2)
+    Z1, Z2   = (z_pcs - zm1), (z_pcs - zm2)
     x_t1     = zyz_rot1[0][0]*X1 + zyz_rot1[0][1]*Y1 + zyz_rot1[0][2]*Z1
     y_t1     = zyz_rot1[1][0]*X1 + zyz_rot1[1][1]*Y1 + zyz_rot1[1][2]*Z1
     z_t1     = zyz_rot1[2][0]*X1 + zyz_rot1[2][1]*Y1 + zyz_rot1[2][2]*Z1
@@ -308,7 +336,62 @@ def PCSPRE1M2SFC(p0, meas_pcs, meas_pre, x1 ,y1, z1, c, wt_pcs, wt_pre):
     PCS_2    = (tmp_2*(ax2*(3.0*z_t2*z_t2-r2_2)+rh2*1.5*(x_t2*x_t2-y_t2*y_t2)))
     err_pcs  = meas_pcs - (PCS_1 + PCS_2)
     err_pre  = meas_pre - (c/r_v1**6 + c/r_v2**6)
-    err      = wt_pcs*(err_pcs) + wt_pre*(err_pre)
+    #TODO: Check if this should be squared (below)
+    err_pcs = err_pcs*wt_pcs
+    err_pre = err_pre*wt_pre
+    err = append(err_pcs, err_pre)
+    return err
+
+#NOTE: Function name read as: PCSPRE(1M)ODEL(2S)SITE(FIXED(C)
+def PCSPRE1M2SFC(p0, meas_pcs, meas_pre, x_pcs ,y_pcs, z_pcs, \
+                 x_pre ,y_pre, z_pre, c, wt_pcs, wt_pre):
+    #FIXME: In the current state can only deal with "common PCS/PRE
+    #FIXME: i.e. only those that come form the same spin.
+    #FIXME: This needs to be fixed ASAP.
+    """
+     Optimize two X-tensors and two PRE centres to two common sites
+     @param p0: List containing initial guesses for (17 unknowns):
+          metal site 1 <x,y,z> , Xaxial and Xrhomic at site 1, Euler angles
+          <A,B,G> at site 1 AND metal site 2 <x,y,z> , Xaxial and Xrhomic at
+          site 2, Euler angles <A,B,G> at site 2 and the PRE constant c
+     @param meas_pcs: The numpy array of measused PCS
+     @param meas_pre: The numpy array of measured PRE
+     @param x: The numpy array of x coordinates of associated exp vals
+     @param y: The numpy array of y coordinates of associated exp vals
+     @param z: The numpy array of z coordinates of associated exp vals
+     @param wt_pcs: [OPTIONAL] The weight of the PCS terms in optimization
+     @param wt_pre: [OPTIONAL] The weight of the PRE terms in optimization
+    """
+    xm1,ym1,zm1, ax1,rh1, a1,b1,g1,xm2,ym2,zm2, ax2,rh2, a2,b2,g2 = p0
+    sd_pcs   = math.sqrt(var(meas_pcs))
+    sd_pre   = math.sqrt(var(meas_pre))
+    r_v1     = sqrt((x_pre-xm1)**2 +(y_pre-ym1)**2 + (z_pre-zm1)**2)
+    r_v2     = sqrt((x_pre-xm2)**2 +(y_pre-ym2)**2 + (z_pre-zm2)**2)
+    zyz_rot1 = ZYZRot(a1, b1, g1)
+    zyz_rot2 = ZYZRot(a2, b2, g2)
+    X1, X2   = (x_pcs - xm1), (x_pcs - xm2)
+    Y1, Y2   = (y_pcs - ym1), (y_pcs - ym2)
+    Z1, Z2   = (z_pcs - zm1), (z_pcs - zm2)
+    x_t1     = zyz_rot1[0][0]*X1 + zyz_rot1[0][1]*Y1 + zyz_rot1[0][2]*Z1
+    y_t1     = zyz_rot1[1][0]*X1 + zyz_rot1[1][1]*Y1 + zyz_rot1[1][2]*Z1
+    z_t1     = zyz_rot1[2][0]*X1 + zyz_rot1[2][1]*Y1 + zyz_rot1[2][2]*Z1
+    x_t2     = zyz_rot2[0][0]*X2 + zyz_rot2[0][1]*Y2 + zyz_rot2[0][2]*Z2
+    y_t2     = zyz_rot2[1][0]*X2 + zyz_rot2[1][1]*Y2 + zyz_rot2[1][2]*Z2
+    z_t2     = zyz_rot2[2][0]*X2 + zyz_rot2[2][1]*Y2 + zyz_rot2[2][2]*Z2
+    r2_1     = (x_t1*x_t1)+(y_t1*y_t1)+(z_t1*z_t1)
+    r2_2     = (x_t2*x_t2)+(y_t2*y_t2)+(z_t2*z_t2)
+    r5_1     = (r2_1*r2_1) * sqrt(r2_1)
+    r5_2     = (r2_2*r2_2) * sqrt(r2_2)
+    tmp_1    = 1.0/r5_1
+    tmp_2    = 1.0/r5_2
+    PCS_1    = (tmp_1*(ax1*(3.0*z_t1*z_t1-r2_1)+rh1*1.5*(x_t1*x_t1-y_t1*y_t1)))
+    PCS_2    = (tmp_2*(ax2*(3.0*z_t2*z_t2-r2_2)+rh2*1.5*(x_t2*x_t2-y_t2*y_t2)))
+    err_pcs  = meas_pcs - (PCS_1 + PCS_2)
+    err_pre  = meas_pre - (c/r_v1**6 + c/r_v2**6)
+    #TODO: Check if this should be squared (below)
+    err_pcs = (err_pcs/sd_pcs)*wt_pcs
+    err_pre = (err_pre/sd_pre)*wt_pre
+    err = append(err_pcs, err_pre)
     return err
 
 
