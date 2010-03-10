@@ -4,7 +4,7 @@ from ParaUtils import *
 """Resual error functions evaluated during the minimization"""
 
 #NOTE: Function name read as: PRE(1M)ODEL(1S)ITE(F)IXED(C)
-def PRE1M1SFC(p0, meas, c, x,y,z):
+def PRE1M1SFC(p0, meas, c, x,y,z, tol=None):
     """
      Optimize for a single PRE centre to a single model with the constant in the
      PRE equation known.
@@ -15,14 +15,23 @@ def PRE1M1SFC(p0, meas, c, x,y,z):
      @param x:    A numpy array of x coordinates for the given PRE values
      @param y:    A numpy array of y coordinates for the given PRE values
      @param z:    A numpy array of z coordinates for the given PRE values
+     @param tol:  [Optional] parameter. Contains an array of experimental
+         tolerances.
     """
     xm,ym,zm = p0
     r_v1 = sqrt((x-xm)**2 +(y-ym)**2 + (z-zm)**2)
     err = meas - c/r_v1**6
-    return err
+    v = math.sqrt(var(meas))
+    if tol == None:
+        return err/v
+    else:
+        for item in range(0, len(err)):
+            if abs(err[item]) - tol[item] <= 0.0:
+                err[item] = 0.0
+        return err/v
 
 #NOTE: Function name read as: PRE(1M)ODEL(1S)ITE(O)PTIMIZE(C)
-def PRE1M1SOC(p0, meas, x,y,z):
+def PRE1M1SOC(p0, meas, x,y,z, tol=None):
     """
      Optimize for a single PRE centre and the constant in the PRE equation to
      a single model. Other parameters are as PRE1M1SFC
@@ -32,10 +41,16 @@ def PRE1M1SOC(p0, meas, x,y,z):
     xm,ym,zm,c = p0
     r_v1 = sqrt((x-xm)**2 +(y-ym)**2 + (z-zm)**2)
     err = meas - c/r_v1**6
-    return err
+    if tol == None:
+        return err
+    else:
+        for item in range(0, len(err)):
+            if abs(err[item]) - tol[item] <= 0.0:
+                err[item] = 0.0
+        return err
 
 #NOTE: Function name read as: PRE(2M)ODELS(1S)ITE(F)IXED(C)
-def PRE2M1SFC(p0, meas, c, x,y,z, x2,y2,z2):
+def PRE2M1SFC(p0, meas, c, x,y,z, x2,y2,z2, tol=None):
     """
      Optimize for a single PRE centre to 2 models (dimer) with the constant in
      the PRE equation known. Other parameters are as PRE1M1SFC
@@ -47,10 +62,17 @@ def PRE2M1SFC(p0, meas, c, x,y,z, x2,y2,z2):
     r_v1 = sqrt( (x-xm)**2 +( y-ym)**2 + ( z-zm)**2)
     r_v2 = sqrt((x2-xm)**2 +(y2-ym)**2 + (z2-zm)**2)
     err = meas - (c/r_v1**6 + c/r_v2**6)
-    return err
+    v = math.sqrt(var(meas))
+    if tol == None:
+        return err/v
+    else:
+        for item in range(0, len(err)):
+            if abs(err[item]) - tol[item] <= 0.0:
+                err[item] = 0.0
+        return err/v
 
 #NOTE: Function name read as: PRE(2M)ODELS(1S)ITE(O)PTIMIZE(C)
-def PRE2M1SOC(p0, meas, x,y,z, x2,y2,z2):
+def PRE2M1SOC(p0, meas, x,y,z, x2,y2,z2, tol=None):
     """
      Optimize for a single PRE centre and the constant in the PRE equation to
      2 models. Parameters as PRE1M1SOC and PRE2M1SFC
@@ -59,26 +81,6 @@ def PRE2M1SOC(p0, meas, x,y,z, x2,y2,z2):
     r_v1 = sqrt(( x-xm)**2 +( y-ym)**2 + ( z-zm)**2)
     r_v2 = sqrt((x2-xm)**2 +(y2-ym)**2 + (z2-zm)**2)
     err = meas - (c/r_v1**6 + c/r_v2**6)
-    return err
-
-#NOTE: Function name read as: PRE(1M)ODELS(2S)SITE(F)IXED(C)
-def PRE1M2SFC(p0, meas, c, x,y,z, tol=None):
-    #NOTE: Change above
-    """
-     Optimize for two PRE centres (dimer case) to a single model with the
-     constant in the PRE equation known.
-     @param p0:   A numpy array with estimates for the coordinates of each of
-        the two PRE centres in the form [<x,y,z>_1  <x,y,z>_2]
-    """
-    xm, ym, zm, xm2,ym2,zm2 = p0
-    print "This method has been modified."
-    print "Inspect code before using"
-    #NOTE: Modified now so that optimize by sd
-    #sd_pre   = math.sqrt(var(meas))
-    r_v1 = sqrt((x -xm )**2 +(y-ym )**2 + (z-zm )**2)
-    r_v2 = sqrt((x -xm2)**2 +(y-ym2)**2 + (z-zm2)**2)
-    err = meas - (c/r_v1**6 + c/r_v2**6)
-    print tol
     if tol == None:
         return err
     else:
@@ -87,8 +89,29 @@ def PRE1M2SFC(p0, meas, c, x,y,z, tol=None):
                 err[item] = 0.0
         return err
 
+#NOTE: Function name read as: PRE(1M)ODELS(2S)SITE(F)IXED(C)
+def PRE1M2SFC(p0, meas, c, x,y,z, tol=None):
+    """
+     Optimize for two PRE centres (dimer case) to a single model with the
+     constant in the PRE equation known.
+     @param p0:   A numpy array with estimates for the coordinates of each of
+        the two PRE centres in the form [<x,y,z>_1  <x,y,z>_2]
+    """
+    xm, ym, zm, xm2,ym2,zm2 = p0
+    r_v1 = sqrt((x -xm )**2 +(y-ym )**2 + (z-zm )**2)
+    r_v2 = sqrt((x -xm2)**2 +(y-ym2)**2 + (z-zm2)**2)
+    err = meas - (c/r_v1**6 + c/r_v2**6)
+    v = math.sqrt(var(meas))
+    if tol == None:
+        return err/v
+    else:
+        for item in range(0, len(err)):
+            if abs(err[item]) - tol[item] <= 0.0:
+                err[item] = 0.0
+        return err/v
+
 #NOTE: Function name read as: PRE(1M)ODELS(2S)SITE(O)PTIMIZE(C)
-def PRE1M2SOC(p0, meas, x,y,z):
+def PRE1M2SOC(p0, meas, x,y,z, tol=None):
     """
      Optimize for two PRE centres (dimer case) to a single model with the
      constant in the PRE equation unknown.
@@ -100,12 +123,18 @@ def PRE1M2SOC(p0, meas, x,y,z):
     r_v1 = sqrt((x- xm)**2 +(y- ym)**2 + (z- zm)**2)
     r_v2 = sqrt((x-xm2)**2 +(y-ym2)**2 + (z-zm2)**2)
     err = meas - (c/r_v1**6 + c/r_v2**6)
-    return err
+    if tol == None:
+        return err
+    else:
+        for item in range(0, len(err)):
+            if abs(err[item]) - tol[item] <= 0.0:
+                err[item] = 0.0
+        return err
 
 
 
 #NOTE: Function name read as: PCS(1M)ODELS(1S)SITE
-def PCS1M1S(p0, meas, x,y,z):
+def PCS1M1S(p0, meas, x,y,z, tol=None):
     """
      Optimize for the X-tensor given a single model.
      @param p0: A list of initial estimates for the 8 unknown X-tensor params
@@ -122,10 +151,16 @@ def PCS1M1S(p0, meas, x,y,z):
     r5 = (r2*r2) * sqrt(r2)
     tmp = 1.0/r5
     err = meas - (tmp*(ax * (3.0*z_t*z_t -r2) + rh*1.5*(x_t*x_t - y_t*y_t)))
-    return err
+    if tol == None:
+        return err
+    else:
+        for item in range(0, len(err)):
+            if abs(err[item]) - tol[item] <= 0.0:
+                err[item] = 0.0
+        return err
 
 #NOTE: Function name read as: PCS(1M)ODELS(1S)SITE(F)IXED(M)ETAL
-def PCS1M1SFM(p0, meas, xm,ym,zm, x,y,z):
+def PCS1M1SFM(p0, meas, xm,ym,zm, x,y,z, tol=None):
     """
      Optimize for the X-tensor given a single model with fixed metal position
      @param p0: A list of initial estimates for the 5 unknown X-tensor params
@@ -142,10 +177,16 @@ def PCS1M1SFM(p0, meas, xm,ym,zm, x,y,z):
     r5 = (r2*r2) * sqrt(r2)
     tmp = 1.0/r5
     err = meas - (tmp*(ax * (3.0*z_t*z_t -r2) + rh*1.5*(x_t*x_t - y_t*y_t)))
-    return err
+    if tol == None:
+        return err
+    else:
+        for item in range(0, len(err)):
+            if abs(err[item]) - tol[item] <= 0.0:
+                err[item] = 0.0
+        return err
 
 #NOTE: Function name read as: PCS(2M)ODELS(1S)SITE
-def PCS2M1S(p0, meas, x,y,z, x2,y2,z2):
+def PCS2M1S(p0, meas, x,y,z, x2,y2,z2, tol=None):
     """
      Optimize for the X-tensor given 2 models.
      @param p0: A list of initial estimates for the 8 unknown X-tensor params
@@ -173,10 +214,16 @@ def PCS2M1S(p0, meas, x,y,z, x2,y2,z2):
     pcs1 = (tmp_1*(ax * (3.0*z_t1*z_t1 -r2_1) + rh*1.5*(x_t1*x_t1 - y_t1*y_t1)))
     pcs2 = (tmp_2*(ax * (3.0*z_t2*z_t2 -r2_2) + rh*1.5*(x_t2*x_t2 - y_t2*y_t2)))
     err = meas - (pcs1 + pcs2)
-    return err
+    if tol == None:
+        return err
+    else:
+        for item in range(0, len(err)):
+            if abs(err[item]) - tol[item] <= 0.0:
+                err[item] = 0.0
+        return err
 
 #NOTE: Function name read as: PCS(2M)ODELS(1S)SITE(F)IXED(M)ETAL
-def PCS2M1SFM(p0, meas, xm,ym,zm, x,y,z, x2,y2,z2):
+def PCS2M1SFM(p0, meas, xm,ym,zm, x,y,z, x2,y2,z2, tol=None):
     """
      Optimize for the X-tensor given 2 models with fixed metal position
      @param p0: A list of initial estimates for the 5 unknown X-tensor params
@@ -204,10 +251,16 @@ def PCS2M1SFM(p0, meas, xm,ym,zm, x,y,z, x2,y2,z2):
     pcs1 = (tmp_1*(ax * (3.0*z_t1*z_t1 -r2_1) + rh*1.5*(x_t1*x_t1 - y_t1*y_t1)))
     pcs2 = (tmp_2*(ax * (3.0*z_t2*z_t2 -r2_2) + rh*1.5*(x_t2*x_t2 - y_t2*y_t2)))
     err = meas - (pcs1 + pcs2)
-    return err
+    if tol == None:
+        return err
+    else:
+        for item in range(0, len(err)):
+            if abs(err[item]) - tol[item] <= 0.0:
+                err[item] = 0.0
+        return err
 
 #NOTE: Function name read as: PCS(1M)ODELS(2S)SITE
-def PCS1M2S(p0, meas, x,y,z):
+def PCS1M2S(p0, meas, x,y,z, tol=None):
     """
      Optimize for 2 X-tensor's given a single model
      @param p0: A list of initial estimates for the 16 unknown X-tensor params
@@ -233,10 +286,16 @@ def PCS1M2S(p0, meas, x,y,z):
     PCS_1 = (tmp_1*(ax1 *(3.0*z_t1*z_t1 -r2_1)+ rh1*1.5*(x_t1*x_t1- y_t1*y_t1)))
     PCS_2 = (tmp_2*(ax2 *(3.0*z_t2*z_t2 -r2_2)+ rh2*1.5*(x_t2*x_t2- y_t2*y_t2)))
     err = meas - (PCS_1 + PCS_2)
-    return err
+    if tol == None:
+        return err
+    else:
+        for item in range(0, len(err)):
+            if abs(err[item]) - tol[item] <= 0.0:
+                err[item] = 0.0
+        return err
 
 #NOTE: Function name read as: PCS(1M)ODELS(2S)SITE(F)IXED(M)ETAL(X1)
-def PCS1M2SFMX1(p0, meas, xm,ym,zm, x,y,z):
+def PCS1M2SFMX1(p0, meas, xm,ym,zm, x,y,z, tol=None):
     """
      Optimize for 2 X-tensor's given a single model with fixed metal position
      @param p0: A list of initial estimates for the 13 unknown X-tensor params
@@ -262,10 +321,16 @@ def PCS1M2SFMX1(p0, meas, xm,ym,zm, x,y,z):
     PCS_1 = (tmp_1*(ax1 *(3.0*z_t1*z_t1 -r2_1)+ rh1*1.5*(x_t1*x_t1- y_t1*y_t1)))
     PCS_2 = (tmp_2*(ax2 *(3.0*z_t2*z_t2 -r2_2)+ rh2*1.5*(x_t2*x_t2- y_t2*y_t2)))
     err = meas - (PCS_1 + PCS_2)
-    return err
+    if tol == None:
+        return err
+    else:
+        for item in range(0, len(err)):
+            if abs(err[item]) - tol[item] <= 0.0:
+                err[item] = 0.0
+        return err
 
 #NOTE: Function name read as: PCS(1M)ODELS(2S)SITE(F)IXED(M)ETAL(X2)
-def PCS1M2SFMX2(p0, meas, xm1,ym1,zm1, xm2,ym2,zm2, x,y,z):
+def PCS1M2SFMX2(p0, meas, xm1,ym1,zm1, xm2,ym2,zm2, x,y,z, tol=None):
     """
      Optimize for 2 X-tensor's given a single model with 2 fixed metal positions
      @param p0: A list of initial estimates for the 10 unknown X-tensor params
@@ -291,13 +356,20 @@ def PCS1M2SFMX2(p0, meas, xm1,ym1,zm1, xm2,ym2,zm2, x,y,z):
     PCS_1 = (tmp_1*(ax1 *(3.0*z_t1*z_t1 -r2_1)+ rh1*1.5*(x_t1*x_t1- y_t1*y_t1)))
     PCS_2 = (tmp_2*(ax2 *(3.0*z_t2*z_t2 -r2_2)+ rh2*1.5*(x_t2*x_t2- y_t2*y_t2)))
     err = meas - (PCS_1 + PCS_2)
-    return err
+    if tol == None:
+        return err
+    else:
+        for item in range(0, len(err)):
+            if abs(err[item]) - tol[item] <= 0.0:
+                err[item] = 0.0
+        return err
 
 
 
 #NOTE: Function name read as: PCSPRE(1M)ODEL(2S)SITE(O)PTMIZE(C)
 def PCSPRE1M2SOC(p0, meas_pcs, meas_pre, x_pcs ,y_pcs, z_pcs, \
-                 x_pre ,y_pre, z_pre, wt_pcs, wt_pre):
+                 x_pre ,y_pre, z_pre, wt_pcs=1.0, wt_pre=1.0, \
+                 tol_pcs=None, tol_pre=None):
     """
      Optimize two X-tensors and two PRE centres to two common sites
      @param p0: List containing initial guesses for (17 unknowns):
@@ -336,6 +408,13 @@ def PCSPRE1M2SOC(p0, meas_pcs, meas_pre, x_pcs ,y_pcs, z_pcs, \
     PCS_2    = (tmp_2*(ax2*(3.0*z_t2*z_t2-r2_2)+rh2*1.5*(x_t2*x_t2-y_t2*y_t2)))
     err_pcs  = meas_pcs - (PCS_1 + PCS_2)
     err_pre  = meas_pre - (c/r_v1**6 + c/r_v2**6)
+    if tol_pcs != None and tol_pre != None:
+        for pcs_item in range(0, len(err_pcs)):
+            if abs(err_pcs[pcs_item]) - tol_pcs[pcs_item] <= 0.0:
+                err_pcs[pcs_item] = 0.0
+        for pre_item in range(0, len(err_pre)):
+            if abs(err_pre[pre_item]) - tol_pre[pre_item] <= 0.0:
+                err_pre[pre_item] = 0.0
     #TODO: Check if this should be squared (below)
     err_pcs = err_pcs*wt_pcs
     err_pre = err_pre*wt_pre
@@ -344,10 +423,8 @@ def PCSPRE1M2SOC(p0, meas_pcs, meas_pre, x_pcs ,y_pcs, z_pcs, \
 
 #NOTE: Function name read as: PCSPRE(1M)ODEL(2S)SITE(FIXED(C)
 def PCSPRE1M2SFC(p0, meas_pcs, meas_pre, x_pcs ,y_pcs, z_pcs, \
-                 x_pre ,y_pre, z_pre, c, wt_pcs, wt_pre):
-    #FIXME: In the current state can only deal with "common PCS/PRE
-    #FIXME: i.e. only those that come form the same spin.
-    #FIXME: This needs to be fixed ASAP.
+                 x_pre ,y_pre, z_pre, c, wt_pcs=1.0, wt_pre=1.0, \
+                 tol_pcs=None, tol_pre=None):
     """
      Optimize two X-tensors and two PRE centres to two common sites
      @param p0: List containing initial guesses for (17 unknowns):
@@ -388,6 +465,13 @@ def PCSPRE1M2SFC(p0, meas_pcs, meas_pre, x_pcs ,y_pcs, z_pcs, \
     PCS_2    = (tmp_2*(ax2*(3.0*z_t2*z_t2-r2_2)+rh2*1.5*(x_t2*x_t2-y_t2*y_t2)))
     err_pcs  = meas_pcs - (PCS_1 + PCS_2)
     err_pre  = meas_pre - (c/r_v1**6 + c/r_v2**6)
+    if tol_pcs != None and tol_pre != None:
+        for pcs_item in range(0, len(err_pcs)):
+            if abs(err_pcs[pcs_item]) - tol_pcs[pcs_item] <= 0.0:
+                err_pcs[pcs_item] = 0.0
+        for pre_item in range(0, len(err_pre)):
+            if abs(err_pre[pre_item]) - tol_pre[pre_item] <= 0.0:
+                err_pre[pre_item] = 0.0
     #TODO: Check if this should be squared (below)
     err_pcs = (err_pcs/sd_pcs)*wt_pcs
     err_pre = (err_pre/sd_pre)*wt_pre

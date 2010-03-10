@@ -4,17 +4,17 @@ import math
 
 """A class to explore/visualize paramagnetic datasets"""
 
-class ExplorePara:
 #TODO: Add numerical spins
 #TODO: Add SFP
 #TODO: Add RDC params
 #TODO: Add isosurface
+class ExplorePara:
 
     def paraSummary(self ,ParsedObj):
         data     = ParsedObj.getParsed()
         print
         print 80*'-'
-        print 'ATOM  RES  EXP         CALC1        DEV           DEV/EXP'
+        print 'ATOM  RES  EXP         CALC        DEV           DEV/EXP'
         print 80*'-'
         for pObject in range(0, len(data)):
             aname  = data[pObject].getName()
@@ -23,7 +23,8 @@ class ExplorePara:
             cal_v  = data[pObject].getCVal()
             dev    = data[pObject].getVal()-data[pObject].getCVal()
             perDev = abs(dev)/abs(exp_v)
-            print '%s%6i%12.3f%12.3f%12.3f%12.3f' % (aname,rnum,exp_v,cal_v,dev, perDev)
+            print '%s%6i%12.3f%12.3f%12.3f%12.3f' % \
+                   (aname,rnum,exp_v,cal_v,dev, perDev)
         print 80*'-'
 
     def paraSummaryMulti(self ,ParsedObj1, ParsedObj2):

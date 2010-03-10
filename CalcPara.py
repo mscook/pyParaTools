@@ -10,7 +10,7 @@ from   ParaUtils import *
 class CalcPara:
 
 
-    def PCS(self, ParsedObj, convention, ParsedObjL=[], average=0):
+    def PCS(self, ParsedObj, convention, ParsedObjL=[]):
         #TODO: Update parsed_pcs_data to ParsedObj as in PRE
         """
         Calculate the PCS for a given set of spins/parameters in a given
@@ -27,8 +27,10 @@ class CalcPara:
                                 over each object
         """
         ParsedObjL.insert(0,ParsedObj)
+        average = []
         for i in range(0, len(ParsedObjL)):
-            #TODO: Check that this change works (calc multi PCS)
+            #TODO: Check that this change works (i.e calc multi PCS)
+            #TODO: Would be nice to calculate the average
             if convention == 'ZXZ':
                 rot  = ZXZRot(ParsedObjL[i].getAlpha(), \
                               ParsedObjL[i].getBeta(), \
@@ -58,26 +60,40 @@ class CalcPara:
                 tmp = 1.0/r5
                 pcs = tmp*(Xax * (3.0*z_t*z_t -r2) + Xrh*1.5*(x_t*x_t - y_t*y_t))
                 data[spin].setCVal(pcs)
+                if i == 0:
+                    average.append(pcs)
+                else:
+                    average[spin] = average[spin] + pcs
+        return average
 
 
-    def PRE(self, ParsedObj):
+    def PRE(self, ParsedObj, ParsedObjL=[]):
         """
         Calculate the PREfor a given set of spins/parameters
         @param parsed_pre_data: A container of parsed dataset/structure/params
         @type parsed_pre_data:  ParaParser object
         """
-        metalPos = ParsedObj.getMetalLoc()
-        data     = ParsedObj.getParsed()
-        for pObject in range(0, len(data)):
-            cur = data[pObject].getCoord()
-            r2 = (metalPos[0] - cur[0])**2 + (metalPos[1] -
-                cur[1])**2 + (metalPos[2] - cur[2])**2
-            r = math.sqrt(r2)
-            pre = ParsedObj.getConstant()/(r**6)
-            data[pObject].setCVal(pre)
+        ParsedObjL.insert(0,ParsedObj)
+        average = []
+        for i in range(0, len(ParsedObjL)):
+            metalPos = ParsedObjL[i].getMetalLoc()
+            data     = ParsedObjL[i].getParsed()
+            for spin in range(0, len(data)):
+                cur = data[spin].getCoord()
+                r2 = (metalPos[0] - cur[0])**2 + (metalPos[1] -
+                    cur[1])**2 + (metalPos[2] - cur[2])**2
+                r = math.sqrt(r2)
+                pre = ParsedObjL[i].getConstant()/(r**6)
+                data[spin].setCVal(pre)
+                if i == 0:
+                    average.append(pre)
+                else:
+                    average[spin] = average[spin] + pre
+        return average
 
 
     #FIXME: The RDC method is not tested. It is most likely wrong. Must check!
+    #TODO: Modify me to deal with multiple objects like PRE/PCS methods above
     def RDC(self, ParsedObj, convention, B0, temp, Nmgr_type=1):
         """
         FIXME

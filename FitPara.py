@@ -168,7 +168,7 @@ class FitPara:
             #NOTE: Agrees with PREfit (by fixing c to free optimized value.
             p0   = parsedObj.getMetalLoc()
             soln,cov,info,mesg,success = leastsq(PRE1M1SFC, p0, args= \
-                                                 (meas, c,x,y,z), full_output=1)
+                                                 (meas, c,x,y,z, tol), full_output=1)
             self.__UpdateFromFit(parsedObj, type_of_fit, soln)
         #NOTE:1 centre, 1 Model, Optimize constant, 4 Params
         if type_of_fit == 1:
@@ -187,7 +187,7 @@ class FitPara:
             z2    = parsedObj2.getAllZarray()
             p0    = parsedObj2.getMetalLoc()
             soln,cov,info,mesg,success = leastsq(PRE2M1SFC, p0, args= \
-                                        (meas, c,x,y,z,x2,y2,z2), full_output=1)
+                                        (meas, c,x,y,z,x2,y2,z2, tol), full_output=1)
             self.__UpdateFromFit(parsedObj, type_of_fit, soln, parsedObj2)
         if type_of_fit == 3:
             #NOTE: Agrees with PREfit
@@ -222,7 +222,7 @@ class FitPara:
             self.__UpdateFromFit(parsedObj, type_of_fit, soln, parseObj2)
 
 #        if success == 1:
-        return soln
+        return soln,cov,info,mesg,success
 #        else:
 #            msg1 = "Optimization failed. Please try again with different "
 #            msg2 = "different intial starting guesses"
