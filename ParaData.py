@@ -250,10 +250,10 @@ class RDCData(ParaData):
         self._s_coord2   = s_coord2
         self._p_type     = 'rdc'
 
-#    def __repr__(self):
-#        #TODO: Check that this method actually functions
-#        return '%s%12i%12.3f%12.3f\n' % (self._spin_type+self._spin_type2,
-#        self._spin_id, self._exp_val, self._e_tol)
+    def __repr__(self):
+        #TODO: Check that this method actually functions
+        return '%s%12i%12.3f%12.3f\n' % (self._spin_type+self._spin_type2,
+        self._spin_id, self._exp_val, self._e_tol)
 
 
     def getName(self):

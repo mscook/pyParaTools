@@ -1,43 +1,40 @@
+#TODO: Test and check current test coverage
+#TODO: Check that the calculation over multiple ParsedObjs works correctly
+#TODO: Ensure that the average calculated is true
+#NOTE: All above can be adressed in the testing framework test_CalcPara.py
+
 import math
 import sys
 from   ParaUtils import *
 
 
-"""Calculates paramagnetic observables given a set of parameters"""
-#TODO: Investigate using protected data ie _var - *DONE*
-#TODO: Test and check current test coverage
-
 class CalcPara:
+    """Calculates paramagnetic observables, PCS, PRE or RDC
+       given a set of parameters"""
 
 
     def PCS(self, ParsedObj, convention, ParsedObjL=[]):
-        #TODO: Update parsed_pcs_data to ParsedObj as in PRE
         """
         Calculate the PCS for a given set of spins/parameters in a given
         convention
-        @param ParsedObj      : A container of parsed dataset/structure/params
-        @type  ParsedObj      : ParaParser object
-        @param convention:    : The X-tensor convention (ZXZ or ZYZ)
-        @type convention:     : string
-        @param ParsedObjList  : [OPTIONAL] A list of ParaParser objects. If to
-                                calculate the PCS on many ParaParser objects
-        @param average        : [OPTIONAL]. Makes sense for multiple objects
-                                passed. Set the calculated PCS to the average
-                                PCS calculated for the corresponding spin
-                                over each object
+        @param ParsedObj:  A container of parsed dataset/structure/params
+        @type  ParsedObj:  ParaParser object
+        @param convention: The X-tensor convention (ZXZ or ZYZ)
+        @type  convention: string
+        @param ParsedObjL: [OPTIONAL] A list of ParaParser objects. When
+                           calculating the PCS on many ParaParser objects
+        @type  ParsedObjL: list
         """
         ParsedObjL.insert(0,ParsedObj)
         average = []
         for i in range(0, len(ParsedObjL)):
-            #TODO: Check that this change works (i.e calc multi PCS)
-            #TODO: Would be nice to calculate the average
             if convention == 'ZXZ':
                 rot  = ZXZRot(ParsedObjL[i].getAlpha(), \
-                              ParsedObjL[i].getBeta(), \
+                              ParsedObjL[i].getBeta(),  \
                               ParsedObjL[i].getGamma())
             elif convention == 'ZYZ':
                 rot  = ZYZRot(ParsedObjL[i].getAlpha(), \
-                              ParsedObjL[i].getBeta(), \
+                              ParsedObjL[i].getBeta(),  \
                               ParsedObjL[i].getGamma())
             else:
                 print "Non-supported convention selected in PCS calculation"
@@ -55,10 +52,10 @@ class CalcPara:
                 x_t = rot[0][0]*X + rot[0][1]*Y + rot[0][2]*Z
                 y_t = rot[1][0]*X + rot[1][1]*Y + rot[1][2]*Z
                 z_t = rot[2][0]*X + rot[2][1]*Y + rot[2][2]*Z
-                r2 = (x_t*x_t)+(y_t*y_t)+(z_t*z_t)
-                r5 = (r2*r2) * math.sqrt(r2)
+                r2  = (x_t*x_t)+(y_t*y_t)+(z_t*z_t)
+                r5  = (r2*r2) * math.sqrt(r2)
                 tmp = 1.0/r5
-                pcs = tmp*(Xax * (3.0*z_t*z_t -r2) + Xrh*1.5*(x_t*x_t - y_t*y_t))
+                pcs = tmp*(Xax*(3.0*z_t*z_t-r2)+Xrh*1.5*(x_t*x_t-y_t*y_t))
                 data[spin].setCVal(pcs)
                 if i == 0:
                     average.append(pcs)
@@ -69,9 +66,11 @@ class CalcPara:
 
     def PRE(self, ParsedObj, ParsedObjL=[]):
         """
-        Calculate the PREfor a given set of spins/parameters
-        @param parsed_pre_data: A container of parsed dataset/structure/params
-        @type parsed_pre_data:  ParaParser object
+        Calculate the PRE for a given set of spins/parameters
+        @param ParsedObj:  A container of parsed dataset/structure/params
+        @type  ParsedObj:  ParaParser object
+        @param ParsedObjL: [OPTIONAL] A list of ParsedObj
+        @type  ParsedObjL: list
         """
         ParsedObjL.insert(0,ParsedObj)
         average = []
@@ -80,9 +79,9 @@ class CalcPara:
             data     = ParsedObjL[i].getParsed()
             for spin in range(0, len(data)):
                 cur = data[spin].getCoord()
-                r2 = (metalPos[0] - cur[0])**2 + (metalPos[1] -
-                    cur[1])**2 + (metalPos[2] - cur[2])**2
-                r = math.sqrt(r2)
+                r2  = (metalPos[0] - cur[0])**2 + (metalPos[1] -
+                       cur[1])**2 + (metalPos[2] - cur[2])**2
+                r   = math.sqrt(r2)
                 pre = ParsedObjL[i].getConstant()/(r**6)
                 data[spin].setCVal(pre)
                 if i == 0:
@@ -92,51 +91,65 @@ class CalcPara:
         return average
 
 
-    #FIXME: The RDC method is not tested. It is most likely wrong. Must check!
-    #TODO: Modify me to deal with multiple objects like PRE/PCS methods above
-    def RDC(self, ParsedObj, convention, B0, temp, Nmgr_type=1):
+    def RDC(self, ParsedObj, convention, exp_type='HN', Nmgr_type=1,
+                ParsedObjL=[]):
         """
-        FIXME
-        @param parsed_rdc_data: A container of parsed dataset/structure/params
-        @type parsed_rdc_data:  ParaParser object
-        @param convention:      The X-tensor convention (ZXZ or ZYZ)
-        @type convention:.......string
-        @param B0:..............The magnetic field strength (Tesla)
-        @type B0:               float
-        @param temp:            The temperature (Kelvin)
-        @type temp:             float
-        @param Nmgr_type=1:     The Nitrogen isotope (N14 or N15)
-        @type Nmgr_type=1:......boolean
+        Calculate the RDCs for a given set of spins/parameters in a given
+        convention
+        @param ParsedObj:  A container of parsed dataset/structure/params
+        @type  ParsedObj:  ParaParser object
+        @param convention: The Alignment-tensor convention (ZXZ or ZYZ)
+        @type  convention:.string
+        @param exp_type:   [DEFAULT] The type of RDC experiment: NH coupled RDC
+        @type  exp_type:   string
+        @param Nmgr_type:  [DEFAULT]The Nitrogen isotope: N15 isotope labelling
+        @type  Nmgr_type:..integer
+        @param ParsedObjL: [OPTIONAL] A list of ParsedObj
+        @type  ParsedObjL: list
         """
-        if convention == 'ZXZ':
-            rot  = ZXZRot(ParsedObj.getAlpha(), ParsedObj.getBeta(),
-                ParsedObj.getGamma())
-        elif convention == 'ZYZ':
-            rot  = ZYZRot(ParsedObj.getAlpha(), ParsedObj.getBeta(),
-                ParsedObj.getGamma())
-        else:
-            print "Non-supported convention selected in RDC calculation"
-            print "Exiting"
-            sys.exit(0)
-        Dax      = ParsedObj.getAxial()
-        Drh      = ParsedObj.getRhombic()
-        data     = ParsedObj.getParsed()
-        #FIXME: Add this code. Below. Currently set to 0.0
-        gH       = 0.0
-        gN       = 0.0
-        for pObject in range(0, len(data)):
-            cur1, cur2 = data[pObject].getCoord()
-            X = cur1[0] - cur2[0]
-            Y = cur1[1] - cur2[1]
-            Z = cur1[2] - cur2[2]
-            x_t = rot[0][0]*X + rot[0][1]*Y +rot[0][2]*Z
-            y_t = rot[1][0]*X + rot[1][1]*Y +rot[1][2]*Z
-            z_t = rot[2][0]*X + rot[2][1]*Y +rot[2][2]*Z
-            r2 = (x_t*x_t)+(y_t*y_t)+(z_t*z_t)
-            r5 = (r2*r2) * math.sqrt(r2)
-            tmp = 1.0/r2
-            us_rdc= (Dax * (3.0*z_t*z_t -r2) + Drh*1.5*(x_t*x_t - y_t*y_t))*tmp
-            scal = RDCScal(B0, temp, gH, gN)
-            rdc = scal*us_rdc
-            data[pObject].setCVal(rdc)
+        ParsedObjL.insert(0,ParsedObj)
+        average = []
+        for i in range(0, len(ParsedObjL)):
+            if convention == 'ZXZ':
+                rot  = ZXZRot(ParsedObjL[i].getAlpha(), ParsedObjL[i].getBeta(),
+                    ParsedObjL[i].getGamma())
+            elif convention == 'ZYZ':
+                rot  = ZYZRot(ParsedObjL[i].getAlpha(), ParsedObjL[i].getBeta(),
+                    ParsedObjL[i].getGamma())
+            else:
+                print "Non-supported convention selected in RDC calculation"
+                print "Exiting"
+                sys.exit(0)
+            if exp_type != 'HN':
+                print "Non-supported RDC experiment type"
+                print "Exiting"
+                sys.exit(0)
+            Dax   = ParsedObjL[i].getAxial()
+            Drh   = ParsedObjL[i].getRhombic()
+            data  = ParsedObjL[i].getParsed()
+            B0    = ParsedObjL[i].getB0()
+            temp  = ParsedObjL[i].getTemp()
+            S     = ParsedObjL[i].getOrder()
+            g1    = lookupMGR(exp_type[0])
+            g2    = lookupMGR(exp_type[1])[Nmgr_type]
+            scal  = rdcScal(S, g1, g2, B0, temp)
+            for spin in range(0, len(data)):
+                cur1, cur2 = data[spin].getCoord()
+                X    = cur1[0] - cur2[0]
+                Y    = cur1[1] - cur2[1]
+                Z    = cur1[2] - cur2[2]
+                x_t  = rot[0][0]*X + rot[0][1]*Y +rot[0][2]*Z
+                y_t  = rot[1][0]*X + rot[1][1]*Y +rot[1][2]*Z
+                z_t  = rot[2][0]*X + rot[2][1]*Y +rot[2][2]*Z
+                r2   = (x_t*x_t)+(y_t*y_t)+(z_t*z_t)
+                r5   = (r2*r2) * math.sqrt(r2)
+                tmp  = 1.0/r5
+                urdc = tmp*(Dax*(3.0*z_t*z_t-r2)+Drh*1.5*(x_t*x_t-y_t*y_t))
+                rdc  = urdc*scal
+                data[spin].setCVal(rdc)
+                if i == 0:
+                    average.append(rdc)
+                else:
+                    average[spin] = average[spin] + rdc
+        return average
 

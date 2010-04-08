@@ -62,7 +62,8 @@ def PRE2M1SFC(p0, meas, c, x,y,z, x2,y2,z2, tol=None):
     r_v1 = sqrt( (x-xm)**2 +( y-ym)**2 + ( z-zm)**2)
     r_v2 = sqrt((x2-xm)**2 +(y2-ym)**2 + (z2-zm)**2)
     err = meas - (c/r_v1**6 + c/r_v2**6)
-    v = math.sqrt(var(meas))
+    #v = math.sqrt(var(meas))
+    v = 1.0
     if tol == None:
         return err/v
     else:
@@ -440,8 +441,10 @@ def PCSPRE1M2SFC(p0, meas_pcs, meas_pre, x_pcs ,y_pcs, z_pcs, \
      @param wt_pre: [OPTIONAL] The weight of the PRE terms in optimization
     """
     xm1,ym1,zm1, ax1,rh1, a1,b1,g1,xm2,ym2,zm2, ax2,rh2, a2,b2,g2 = p0
-    sd_pcs   = math.sqrt(var(meas_pcs))
-    sd_pre   = math.sqrt(var(meas_pre))
+    #sd_pcs   = math.sqrt(var(meas_pcs))
+    #sd_pre   = math.sqrt(var(meas_pre))
+    sd_pcs = 1.0
+    sd_pre = 1.0
     r_v1     = sqrt((x_pre-xm1)**2 +(y_pre-ym1)**2 + (z_pre-zm1)**2)
     r_v2     = sqrt((x_pre-xm2)**2 +(y_pre-ym2)**2 + (z_pre-zm2)**2)
     zyz_rot1 = ZYZRot(a1, b1, g1)
@@ -478,6 +481,23 @@ def PCSPRE1M2SFC(p0, meas_pcs, meas_pre, x_pcs ,y_pcs, z_pcs, \
     err = append(err_pcs, err_pre)
     return err
 
+
+def RDC1M1S(p0, meas_rdc, x1,y1,z1, x2,y2,z2, scal, tol=None):
+    Dax, Drh, a, b, g = p0
+    rot  = ZYZRot(a, b, g)
+    X    = x1 - x2
+    Y    = y1 - y2
+    Z    = z1 - z2
+    x_t  = rot[0][0]*X + rot[0][1]*Y +rot[0][2]*Z
+    y_t  = rot[1][0]*X + rot[1][1]*Y +rot[1][2]*Z
+    z_t  = rot[2][0]*X + rot[2][1]*Y +rot[2][2]*Z
+    r2   = (x_t*x_t)+(y_t*y_t)+(z_t*z_t)
+    r5   = (r2*r2) * sqrt(r2)
+    tmp  = 1.0/r5
+    rdct = ((Dax * (3.0*z_t*z_t -r2) + Drh*1.5*(x_t*x_t - y_t*y_t))*tmp)
+    rdc  = rdct*scal
+    err  = meas_rdc - rdc
+    return err
 
 
 def InterSpheres(p0, m1,m2,mp,r1,r2,r3):

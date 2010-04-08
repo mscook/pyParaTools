@@ -227,10 +227,10 @@ class ParaParser:
         import random
         for i in range (0, len(self._parsed)):
             val = self._parsed[i].getVal()
-            print 79*'-'
-            print "WARNING: This method does not consider exprimental tolerance"
-            print "It works best for a 'flat' relative error"
-            print 79*'-'
+            #print 79*'-'
+            #print "WARNING: This method does not consider exprimental tolerance"
+            #print "It works best for a 'flat' relative error"
+            #print 79*'-'
             sigma = val*delta
             up, low = val+sigma, val-sigma
             self._parsed[i].setVal(random.uniform(up,low))
@@ -654,42 +654,9 @@ class RDCParser(ParaParser):
         self._Ealpha       = float(stdin[6])
         self._Ebeta        = float(stdin[7])
         self._Egamma       = float(stdin[8])
-
-
-    def add2ndSite(self):
-        #NOTE: No longer nessacary
-        """
-        This is a bit of a hack, but in the case of fitting two paramagnetic
-        centres we can store info on the second site in the object. The
-        following 3 methods (inclusive) deal with this case.
-        Initializes a empty datastore
-        """
-        self._site2 = zeros(5)
-
-    def populate2ndSite(self, ax2,rh2, a2,b2,g2):
-        #NOTE: No longer nessacary
-        """
-        Add alignment-tensor params to the datastore.
-        """
-        #FIXME: RE: units of the alignment-tensor
-        self._site2[0] = ToVVU(ax2)
-        self._site2[1] = ToVVU(rh2)
-        self._site2[2] = a2
-        self._site2[3] = b2
-        self._site2[4] = g2
-
-    def get2ndSite(self):
-        #NOTE: No longer nessacary
-        """
-        Return the alignment-tensor params from the datastore.
-        """
-        site2_data = zeros(5)
-        site2_data[0] = FromVVU(self._site2[0])
-        site2_data[1] = FromVVU(self._site2[1])
-        site2_data[2] = self._site2[2]
-        site2_data[3] = self._site2[3]
-        site2_data[4] = self._site2[4]
-        return site2_data
+        self._B0           = 18.792343
+        self._temp         = 298.0
+        self._order        = 1.0
 
 
     def getTensorParams(self):
@@ -697,13 +664,12 @@ class RDCParser(ParaParser):
         Return all 5 alignment-tensor parameters.
         """
         At = zeros(5)
-        At[3] = FromVVU(self._ax)
-        At[4] = FromVVU(self._rh)
-        At[5] = self._Ealpha
-        At[6] = self._Ebeta
-        At[7] = self._Egamma
+        At[0] = FromVVU(self._ax)
+        At[1] = FromVVU(self._rh)
+        At[2] = self._Ealpha
+        At[3] = self._Ebeta
+        At[4] = self._Egamma
         return At
-
 
     def getAxial(self):
         #FIXME: RE: units of the alignment-tensor
@@ -737,6 +703,23 @@ class RDCParser(ParaParser):
         """
         return self._Egamma
 
+    def getB0(self):
+        """
+        Return the magnetic field strength (in Tesla)
+        """
+        return self._B0
+
+    def getTemp(self):
+        """
+        Return the temperature (in Kelvin)
+        """
+        return self._temp
+
+    def getOrder(self):
+        """
+        Return the order paramameter
+        """
+        return self._order
 
     def setAxial(self, axial):
         #FIXME: RE: units of the alignment-tensor
@@ -780,6 +763,66 @@ class RDCParser(ParaParser):
         """
         self._Egamma = gamma
 
+    def setB0(self, b0):
+        """
+        Set the magnetic field strength (in Tesla)
+        """
+        self._B0 = b0
+
+    def setTemp(self, temperature):
+        """
+        Set the temperature (in Kelvin)
+        """
+        self._temp = temperature
+
+    def setOrder(self, Odparam):
+        """
+        Set the order paramameter
+        """
+        self._order = Odparam
+
+
+    def getAllXarray(self):
+        """
+        Returns all the parsed x (x2) coordinates in a single array (x2).
+        Exploited in fitting.
+        """
+        xA1 = zeros(len(self._parsed))
+        xA2 = zeros(len(self._parsed))
+        for i in range (0, len(self._parsed)):
+            val1, val2 = self._parsed[i].getCoordx()
+            xA1[i] = val1
+            xA2[i] = val2
+        return xA1, xA2
+
+    def getAllYarray(self):
+        """
+        Returns all the parsed y (x2) coordinates in a single array (x2).
+        Exploited in fitting.
+        """
+        yA1 = zeros(len(self._parsed))
+        yA2 = zeros(len(self._parsed))
+        for i in range (0, len(self._parsed)):
+            val1, val2 = self._parsed[i].getCoordy()
+            yA1[i] = val1
+            yA2[i] = val2
+        return yA1, yA2
+
+    def getAllZarray(self):
+        """
+        Returns all the parsed z (x2) coordinates in a single array (x2).
+        Exploited in fitting.
+        """
+        zA1 = zeros(len(self._parsed))
+        zA2 = zeros(len(self._parsed))
+        for i in range (0, len(self._parsed)):
+            val1, val2 = self._parsed[i].getCoordz()
+            zA1[i] = val1
+            zA2[i] = val2
+        return zA1, zA2
+
+
+
     def doParse(self):
         """
         Parse the given the imput parameters, build ParaData objects
@@ -789,7 +832,9 @@ class RDCParser(ParaParser):
         pDList = []
         for i in range(0, len(self._dataset)):
             res, at, exp, tol =  self._dataset[i].split()
-            at1, at2 = atom_type[1], atom_type[0]
+            at1, at2 = at[1], at[0]
+            #NOTE: This is a hack. Find something more elegant
+            at2 = at2+'N'
             res = res.strip()
             exp, tol = float(exp), float(tol)
             for atom in self._model.get_atoms():
@@ -799,6 +844,6 @@ class RDCParser(ParaParser):
                     c1 = atom.get_coord()
                 if (c_res == res) and (at2 == c_at):
                     c2 = atom.get_coord()
-                    pDList.append(RDCData(at1, int(res), exp, tol, c1, at2 ,c2))
+                    pDList.append(RDCData(at1, int(res), exp, tol, c1, at2[0] ,c2))
         self._parsed = pDList
 

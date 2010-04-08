@@ -1,7 +1,7 @@
 import sys
 
 
-sys.path.append("/home/mscook/Desktop/PhD/Projects/pyParaFit")
+sys.path.append("/home/mscook/Desktop/PhD/Projects/pyParaTools")
 
 from ParaParser import *
 
@@ -17,11 +17,18 @@ print 80*'-'
 
 #
 
-pre1 = PREParser(sys.argv)
-pre1.doParse()
-print pre1.getParsed()
+#pre1 = PREParser(sys.argv)
+#pre1.doParse()
+#print pre1.getParsed()
 #
-#rdc = RDCParser(sys.argv)
-#rdc.doParse()
-#print rdc.parsed
+
+rdc_in = ['PROTOCOL_NAME', 'rdc', 'STRUCTURES/epsilon.pdb',
+'DATASETS/RDC/epsilon.rdc', '-23.0', '37.0', '60.0', '26.0', '230.0']
+rdc = RDCParser(rdc_in)
+rdc.doParse()
+tp =  rdc.getTensorParams()
+print tp
+a = rdc.getParsed()
+print len(a)
+print a[0]
 

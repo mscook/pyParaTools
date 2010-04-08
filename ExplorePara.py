@@ -1,31 +1,54 @@
-from numpy import *
-from scipy import *
-import math
-
-"""A class to explore/visualize paramagnetic datasets"""
-
 #TODO: Add numerical spins
 #TODO: Add SFP
-#TODO: Add RDC params
 #TODO: Add isosurface
-class ExplorePara:
 
-    def paraSummary(self ,ParsedObj):
-        data     = ParsedObj.getParsed()
-        print
-        print 80*'-'
-        print 'ATOM  RES  EXP         CALC        DEV           DEV/EXP'
-        print 80*'-'
-        for pObject in range(0, len(data)):
-            aname  = data[pObject].getName()
-            rnum   = data[pObject].getId()
-            exp_v  = data[pObject].getVal()
-            cal_v  = data[pObject].getCVal()
-            dev    = data[pObject].getVal()-data[pObject].getCVal()
-            perDev = abs(dev)/abs(exp_v)
-            print '%s%6i%12.3f%12.3f%12.3f%12.3f' % \
+from   numpy import *
+from   scipy import *
+import math
+
+
+class ExplorePara:
+    """
+    A class to explore, analysze and visualize paramagnetic datasets
+    """
+
+    def paraSummary(self ,ParsedObj, ParsedObjL=[]):
+        ParsedObjL.insert(0,ParsedObj)
+        # These are needed when averaging - more than one para object
+        aname_l = []
+        rnum_l  = []
+        exp_l   = []
+        calc_l  = []
+        for i in range(0, len(ParsedObjL)):
+            print "Dataset ", str(i+1)
+            data = ParsedObjL[i].getParsed()
+            # Give the information for the individual para objects first
+            print 80*'-'
+            print 'ATOM  RES  EXP         CALC        DEV           DEV/EXP'
+            print 80*'-'
+            for spin in range(0, len(data)):
+                aname  = data[spin].getName()
+                rnum   = data[spin].getId()
+                exp_v  = data[spin].getVal()
+                cal_v  = data[spin].getCVal()
+                dev    = data[spin].getVal()-data[spin].getCVal()
+                perDev = abs(dev)/abs(exp_v)
+                print '%s%6i%12.3f%12.3f%12.3f%12.3f' % \
                    (aname,rnum,exp_v,cal_v,dev, perDev)
-        print 80*'-'
+                aname_l.append(aname)
+                rnum_l.append(rnum)
+                exp_l.append(exp_v)
+                calc_l.append(cal_v)
+            print 80*'-'
+        if len(ParsedObjL) >=2:
+            print 'ATOM  RES  EXP         CALC        DEV           DEV/EXP'
+            inc = int(len(calc_l)/float(i+1))
+            for i in range(0,inc):
+                calct = (calc_l[i] + calc_l[i+inc])
+                dev = exp_l[i] - calct
+                print aname_l[i], rnum_l[i], exp_l[i], calct, dev, abs(dev)/abs(exp_l[i])
+
+
 
     def paraSummaryMulti(self ,ParsedObj1, ParsedObj2):
         data1     = ParsedObj1.getParsed()
@@ -243,4 +266,50 @@ class ExplorePara:
             %(a,aid+2,at[2],rt,mod,resn+i, x3, y3, z3))
             print ('%s%7i%4s%5s%2s%4i%12.3f%8.3f%8.3f' \
             %(a,aid+3,at[3],rt,mod,resn+i, x4, y4, z4))
+
+    def buildXplorTBL(self, ParsedObj, centre='500'):
+        data     = ParsedObj.getParsed()
+        ds_type =  parsedObj.getDataType()
+        if ds_type == pcs:
+            pass
+#            for spin in range(0, len(data)):
+#                print "assign ( resid "+centre+" and name OO )"
+#                print "       ( resid "+centre+" and name Z  )"
+#                print "       ( resid "+centre+" and name X  )"
+#                print "       ( resid "+centre+" and name Y  )"
+#                print "       ( resid "+str(data[spin].getId())+ \
+#                                " and name "+str(data[spin].getName())+"  )"
+#                print "       ( resid 500 and name OO  ) "+ \
+#                                str(data[spin].getVal()+" "+ \
+#                                str(data[spin].getTol())
+#                print "\n"
+        if ds_type == rdc:
+            pass
+        #print " assign ( resid 600  and name OO  )"
+        #print "        ( resid 600  and name Z   )"
+        #print "        ( resid 600  and name X   )"
+        #print "        ( resid 600  and name Y   )"
+        #print "        ( resid "+res_num+"    and name N   )"
+        #print "        ( resid "+res_num+"    and name HN  )  "+rdc_val+"  0.001"
+        #print "\n"
+        if ds_type == pre:
+            pass
+        #assign (resid  14 and name HA) (resid 300 and name MN)   3.55   2.92
+
+    def buildNumbatTBL(self, ParsedObj, outname='default.npc'):
+        #TODO: PRE and RDC are not done yet !
+        switch = 0
+        data     = ParsedObj.getParsed()
+        ds_type =  ParsedObj.getDataType()
+        if outname != 'default.npc':
+            fout  = open(outname, 'w')
+            switch = 1
+        #NOTE: Do not need to worry about the different datasets.
+            for i in range(0, len(data)):
+                out = str(data[i].getName()), str(data[i].getId()), str(round(data[i].getCVal(), 3)), str(data[i].getTol())
+                if switch == 0:
+                    print '%3s%15s%15s%8s' % (out[1], out[0], out[2], out[3])
+                if switch == 1:
+                    fout.write('%3s%15s%15s%8s\n' % (out[1], out[0], out[2], out[3]))
+            fout.close()
 

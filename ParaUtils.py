@@ -190,36 +190,15 @@ def lookupMGR(spin_type):
     return mgr[spin_type]
 
 
-def getConstants(c_type):
+def rdcScal(S, g1, g2, B0, temp):
     """
-    Lookup NMR constants. For RDC calculations
-         @param A: The (A)lpha angle
-     @type A : float
-     @param B: The (B)eta angle
-
+    Scaling constant.for RDC calculations
     """
     #TODO: These need to be checked
-    if   c_type == 'hbar':
-        return 1.05457148e-34
-    elif c_type == 'kboltz':
-        return 1.3806503e-23
-    elif c_type == 'distNH':
-        return 1.03e-10
-    elif c_type == 'vvuSRDC':
-        return 3.76991118431e-35
-    else:
-        return 0.0
-
-
-def RDCScal(B0, temp, gH, gN):
-    """
-    Calculate the RDC scaling factor
-    """
-    #TODO: I cant remember where/how this works. Check this
-    a = -1*(B0**2)*gH*gN*(getConstants(hbar))
-    b = ((getConstants(distHN)**3)*getConstants(kboltz)*temp)*(120*math.pi**2)
-    return (a/b)*getConstants(vvuSRDC)
-
+    hbar   = 1.05457148e-34
+    kboltz = 1.3806503e-23
+    scal   = -S*g1*g2*hbar*B0*B0 / (8*15*math.pi*math.pi*kboltz*temp)
+    return scal*0.01
 
 def FitSummary(soln,cov,info,mesg,success, p0, y_meas, tof):
     scal = 1.0

@@ -229,9 +229,35 @@ class FitPara:
 #            print msg1+msg2
 
 
-    def RDC(self, parsedObj, type_of_fit):
-        # NOTE: This method will come in future- when RDC calc is known to work
-        pass
+    def RDCOptions(self):
+        """
+        Prints information on the types of fits that can be achieved from RDC
+        data
+        """
+        print "0       1 A-t        1 Model     5 Params"
+
+
+    #TODO: Optimize me please
+    def RDC(self, parsedObj, type_of_fit, scal, parsedObj2="None"):
+        x1,x2 = parsedObj.getAllXarray()
+        y1,y2 = parsedObj.getAllYarray()
+        z1,z2 = parsedObj.getAllZarray()
+        meas  = parsedObj.getAllMeasarray()
+        Dax   = parsedObj.getAxial()
+        Drh   = parsedObj.getRhombic()
+        a     = parsedObj.getAlpha()
+        b     = parsedObj.getBeta()
+        g     = parsedObj.getGamma()
+        #NOTE: 1 A-t, 1 Model, 5 Params
+        if type_of_fit == 0:
+            p0 = zeros(5)
+            p0[0], p0[1], p0[2], p0[3], p0[4] = Dax, Drh, a, b ,g
+            soln,cov,info,mesg,success = leastsq(RDC1M1S, p0, \
+                                              args=(meas, x1,y1,z1, \
+                                                          x2,y2,z2, scal),\
+                                                          full_output=1)
+        print soln
+
 
 
     def PCS_PRE(self, parsedObj, type_of_fit, parsedObj2, parsedObj3, \

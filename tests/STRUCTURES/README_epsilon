@@ -1,0 +1,6 @@
+epsilon.pdb 			is the pdb form the standard numbat distribution
+epsilon_pymol.pdb 		is epsilon.pdb, however with some names atom names changed etc.
+
+epsilon_2_models.pdb		(from epsilon.pdb- two identical models)
+epsilon_2_models_x10.pdb        (from epsilon_pymol.pdb and epsilon_10deg.pdb) with two models one with epsilon rotated by 1odeg on the x axis
+
