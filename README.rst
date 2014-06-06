@@ -5,12 +5,12 @@ For exploring paramagnetic observables using theoretical models.
 
 Copyright (C) 2010-2014 Mitchell J Stanton-Cook
 
----
+-------------------------------------------------------------------------------
 
 **I am no longer actively working on this project. Pull request will be
 appreciated and accepted**
 
----
+------------------------------------------------------------------------------
 
 **Author:** Mitchell J Stanton-Cook
 
@@ -20,9 +20,7 @@ appreciated and accepted**
 
 **Contact:** m.stantoncook@gmail.com
 
-..note:: 
-
-    you can cite the pyParaTools code using:
+**Note:** you can cite the pyParaTools code using:
 
 .. image:: https://zenodo.org/badge/doi/10.5281/zenodo.10313.png
    :target: http://dx.doi.org/10.5281/zenodo.10313
