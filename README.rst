@@ -1,28 +1,40 @@
-pyParaTools - For exploring paramagnetic observables using theoretical models
-=============================================================================
+pyParaTools
+===========
 
-**I am no longer actively working on this project.**
+For exploring paramagnetic observables using theoretical models.
 
 Copyright (C) 2010-2014 Mitchell J Stanton-Cook
 
+---
+
+**I am no longer actively working on this project. Pull request will be
+appreciated and accepted**
+
+---
+
 **Author:** Mitchell J Stanton-Cook
+
 **Start Date:** 01/10
+
 **Links:** http://comp-bio.anu.edu.au/mscook/PPT/
+
 **Contact:** m.stantoncook@gmail.com
 
-Please note you can cite the pyParaTools code using:
+..note:: 
+
+    you can cite the pyParaTools code using:
 
 .. image:: https://zenodo.org/badge/doi/10.5281/zenodo.10313.png
    :target: http://dx.doi.org/10.5281/zenodo.10313
    :alt: DOI
 
-An alternate citation is::
+An alternative citation is::
 
     M. Stanton-Cook, X.-C. Su, G. Otting, T. Huber, http://compbio.anu.edu.au/mscook/PPT/
 
 
-**Code from pyParaTools has been in incorporated into Xplor-NIH_ as of
-version 2.32.**
+Code from pyParaTools has been in incorporated into Xplor-NIH_ as of
+version 2.32.
 
 
 Summary
@@ -35,13 +47,13 @@ The current version supports Pseudocontact shifts (PCS) Paramagnetic
 Relaxation enhancement and Residual Dipolar Couplings.
 
 pyParaTools provides a datastore for such assigned experimental data. It
-can be used to calculate the expected expermintally determined values
+can be used to calculate the expected experimentally determined values
 from known/assumed parameters. It can be used to determine parameters
 using non-linear least square fitting. Additional functions include
 data exploration and utilities.
 
 pyParaTools is easily extended. We ask that all modifications to pyParaTools
-respect the licencing conditions. We would also like to hear how pyParaTools
+respect the licensing conditions. We would also like to hear how pyParaTools
 has been used/modified.
 
 
@@ -74,7 +86,7 @@ Please see::
     Paramagnetism-based restraints for Xplor-NIH. J Biomol NMR 28:249–261
 
 
-Licencing
+licensing
 ---------
 
 pyParaTools is liscenced under the `Educational Community License, Version 2.0`_
@@ -88,8 +100,8 @@ This is free software, and you are welcome to redistribute it
 under certain conditions; read LICENCE.txt for details.
 
 
-
 .. _Educational Community License, Version 2.0: http://opensource.org/licenses/ECL-2.0
-.. _bio.pdb: http://www.biopython.org or from apt-get or yum
-.. _Numpy: http://numpy.scipy.org or from apt-get or yum
-.. _Scipy: http://www.scipy.org or from apt-get or yum
+.. _bio.pdb: http://www.biopython.org
+.. _Numpy: http://numpy.scipy.org
+.. _Scipy: http://www.scipy.org
+.. _Xplor-NIH: http://nmr.cit.nih.gov/xplor-nih/doc/current/python/ref/pcsTools.html
